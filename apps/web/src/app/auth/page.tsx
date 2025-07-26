@@ -1,7 +1,8 @@
 // path: apps/web/src/app/auth/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 // Prevent static generation during build
 export const dynamic = 'force-dynamic';
@@ -17,6 +18,18 @@ export default function AuthPage() {
   // const router = useRouter();
   const { toast } = useToast();
   const supabase = createClient();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      toast({
+        title: 'Authentication Error',
+        description: decodeURIComponent(error),
+        variant: 'destructive',
+      });
+    }
+  }, [searchParams, toast]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
