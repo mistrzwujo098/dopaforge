@@ -76,8 +76,8 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
       console.log('Back online - syncing data');
       // Trigger sync when coming back online
       if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
-        navigator.serviceWorker.ready.then((registration) => {
-          return registration.sync.register('sync-tasks');
+        navigator.serviceWorker.ready.then((registration: any) => {
+          return registration.sync?.register('sync-tasks');
         });
       }
     };
