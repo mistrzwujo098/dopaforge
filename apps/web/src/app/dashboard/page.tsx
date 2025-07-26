@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DragDropContext, Droppable, Draggable, DragDropWrapper } from '@/components/drag-drop-wrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@dopaforge/ui';
+
+// Prevent static generation during build
+export const dynamic = 'force-dynamic';
 import { TaskCard } from '@/components/task-card';
 import { CreateTaskDialog } from '@/components/create-task-dialog';
 import { StatsCard } from '@/components/stats-card';

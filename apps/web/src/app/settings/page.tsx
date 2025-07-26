@@ -1,6 +1,9 @@
 // path: apps/web/src/app/settings/page.tsx
 'use client';
 
+// Prevent static generation during build
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';

@@ -1,6 +1,9 @@
 // path: apps/web/src/app/focus/[taskId]/page.tsx
 'use client';
 
+// Prevent static generation during build
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';

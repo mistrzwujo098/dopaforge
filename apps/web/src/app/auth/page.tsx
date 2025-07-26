@@ -2,6 +2,9 @@
 'use client';
 
 import React, { useState } from 'react';
+
+// Prevent static generation during build
+export const dynamic = 'force-dynamic';
 // import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/auth';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@dopaforge/ui';

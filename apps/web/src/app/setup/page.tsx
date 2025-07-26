@@ -1,5 +1,8 @@
 'use client';
 
+// Prevent static generation during build
+export const dynamic = 'force-dynamic';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dopaforge/ui';
 import { AlertCircle, CheckCircle, Copy, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
