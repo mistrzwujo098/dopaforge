@@ -1,7 +1,7 @@
 // path: apps/web/src/app/auth/page.tsx
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 // import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/auth';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@dopaforge/ui';

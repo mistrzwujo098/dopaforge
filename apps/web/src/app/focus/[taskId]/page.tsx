@@ -22,7 +22,7 @@ export default function FocusPage({ params }: { params: { taskId: string } }) {
   const [isPaused, setIsPaused] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pauseTimeRef = useRef<number>(0);
   const { user } = useUser();
   const router = useRouter();
