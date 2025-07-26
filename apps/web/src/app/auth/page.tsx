@@ -20,9 +20,23 @@ export default function AuthPage() {
     setLoading(true);
 
     try {
+      if (!supabase) {
+        throw new Error('Authentication service is not configured. Please check environment variables.');
+      }
+
       const { error } = isSignUp 
-        ? await supabase.auth.signInWithOtp({ email })
-        : await supabase.auth.signInWithOtp({ email });
+        ? await supabase.auth.signInWithOtp({ 
+            email,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            }
+          })
+        : await supabase.auth.signInWithOtp({ 
+            email,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            }
+          });
 
       if (error) throw error;
 
@@ -33,7 +47,7 @@ export default function AuthPage() {
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error.message || 'An unexpected error occurred',
         variant: 'destructive',
       });
     } finally {

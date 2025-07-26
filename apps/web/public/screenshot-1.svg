@@ -1,0 +1,27 @@
+<svg width="1080" height="1920" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#f3f4f6"/>
+  <rect x="40" y="40" width="1000" height="200" rx="20" fill="#10b981"/>
+  <text 
+    x="540" 
+    y="140" 
+    font-family="Arial, sans-serif" 
+    font-size="60px" 
+    font-weight="bold" 
+    fill="white" 
+    text-anchor="middle" 
+    dominant-baseline="middle"
+  >
+    DopaForge
+  </text>
+  <text 
+    x="540" 
+    y="960" 
+    font-family="Arial, sans-serif" 
+    font-size="40px" 
+    fill="#6b7280" 
+    text-anchor="middle" 
+    dominant-baseline="middle"
+  >
+    Transform procrastination into productivity
+  </text>
+</svg>
