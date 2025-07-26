@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { supabase } from '@dopaforge/db';
-import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 interface UseRealtimeSyncOptions {
   userId: string;
@@ -26,7 +26,7 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
             table: 'micro_tasks',
             filter: `user_id=eq.${userId}`,
           },
-          (payload) => {
+          (payload: RealtimePostgresChangesPayload<any>) => {
             console.log('Task change:', payload);
             onTasksChange?.();
           }
@@ -39,7 +39,7 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
             table: 'user_profiles',
             filter: `user_id=eq.${userId}`,
           },
-          (payload) => {
+          (payload: RealtimePostgresChangesPayload<any>) => {
             console.log('Profile change:', payload);
             onProfileChange?.();
           }
@@ -52,7 +52,7 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
             table: 'rewards',
             filter: `user_id=eq.${userId}`,
           },
-          (payload) => {
+          (payload: RealtimePostgresChangesPayload<any>) => {
             console.log('Reward change:', payload);
             onProfileChange?.();
           }
