@@ -1,58 +1,84 @@
 // path: apps/web/src/middleware.ts
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
+
   // Check if Supabase environment variables are configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     console.error('Supabase environment variables are not configured');
     // Redirect to setup page when Supabase is not configured
-    if (req.nextUrl.pathname !== '/setup') {
-      return NextResponse.redirect(new URL('/setup', req.url));
+    if (request.nextUrl.pathname !== '/setup') {
+      return NextResponse.redirect(new URL('/setup', request.url));
     }
-    return res;
+    return response;
   }
-  
-  try {
-    const supabase = createMiddlewareClient({ req, res });
 
-    // Refresh session
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    const user = session?.user;
-    
-    // Log for debugging
-    console.log('Middleware:', {
-      path: req.nextUrl.pathname,
-      hasUser: !!user,
-      userEmail: user?.email,
-    });
-
-    // If user is signed in and the current path is /auth redirect the user to /dashboard
-    if (user && req.nextUrl.pathname === '/auth') {
-      console.log('Redirecting authenticated user to dashboard');
-      return NextResponse.redirect(new URL('/dashboard', req.url));
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+        },
+        remove(name: string, options: any) {
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          });
+        },
+      },
     }
+  );
 
-    // If user is not signed in and the current path is not /auth redirect the user to /auth
-    // But skip for static files and auth callback
-    if (!user && req.nextUrl.pathname !== '/auth' && !req.nextUrl.pathname.startsWith('/auth/')) {
-      console.log('Redirecting unauthenticated user to auth');
-      return NextResponse.redirect(new URL('/auth', req.url));
-    }
+  const { data: { user } } = await supabase.auth.getUser();
 
-    return res;
-  } catch (error) {
-    console.error('Middleware error:', error);
-    // On error, redirect to auth page
-    if (req.nextUrl.pathname !== '/auth') {
-      return NextResponse.redirect(new URL('/auth', req.url));
-    }
-    return res;
+  // If user is signed in and the current path is /auth redirect the user to /dashboard
+  if (user && request.nextUrl.pathname === '/auth') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
+
+  // If user is not signed in and the current path is not /auth redirect the user to /auth
+  if (!user && request.nextUrl.pathname !== '/auth' && !request.nextUrl.pathname.startsWith('/auth/')) {
+    return NextResponse.redirect(new URL('/auth', request.url));
+  }
+
+  return response;
 }
 
 export const config = {

@@ -1,9 +1,7 @@
 // path: apps/web/src/app/auth/callback/route.ts
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerSupabaseClient } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import type { Database } from '@dopaforge/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,10 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (code) {
-      const cookieStore = cookies();
-      const supabase = createRouteHandlerClient<Database>({ 
-        cookies: () => cookieStore 
-      });
+      const supabase = createServerSupabaseClient();
       
       // Exchange code for session
       const { error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
