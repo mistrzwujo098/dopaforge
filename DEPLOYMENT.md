@@ -16,12 +16,12 @@
 
 ### 2. Configure Build Settings
 
-Vercel should auto-detect the settings, but verify:
+In Vercel project settings, configure:
 
 - **Framework Preset**: Next.js
-- **Root Directory**: `apps/web`
-- **Build Command**: `cd ../.. && npm run build`
-- **Output Directory**: `apps/web/.next`
+- **Root Directory**: `apps/web` (IMPORTANT: Set this in Vercel dashboard)
+- **Build Command**: Leave empty (uses default)
+- **Output Directory**: Leave empty (uses default)
 - **Install Command**: `pnpm install`
 
 ### 3. Set Environment Variables
