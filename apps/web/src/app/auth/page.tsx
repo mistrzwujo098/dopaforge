@@ -18,7 +18,7 @@ function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   // const router = useRouter();
   const { toast } = useToast();
-  const supabase = createClient();
+  const supabase = createClient;
   const searchParams = useSearchParams();
 
   useEffect(() => {
