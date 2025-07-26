@@ -1,0 +1,4 @@
+# path: pnpm-workspace.yaml
+packages:
+  - "apps/*"
+  - "packages/*"

@@ -1,0 +1,564 @@
+// path: apps/web/src/app/dashboard/page.tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Card, CardContent, CardHeader, CardTitle } from '@dopaforge/ui';
+import { TaskCard } from '@/components/task-card';
+import { CreateTaskDialog } from '@/components/create-task-dialog';
+import { StatsCard } from '@/components/stats-card';
+import { ProgressBar } from '@/components/progress-bar';
+import { useUser } from '@/hooks/useUser';
+import { useToast } from '@/hooks/useToast';
+import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { createClient } from '@/lib/auth';
+import {
+  getTodayTasks,
+  createTask,
+  reorderTasks,
+  getUserProfile,
+  updateUserProfile,
+  getTodayFutureSelf,
+  createFutureSelf,
+  needsWeeklyReview,
+  createWeeklyReview,
+  getImplementationIntentions,
+  createImplementationIntention,
+  updateImplementationIntention,
+  deleteImplementationIntention,
+  spinLootbox,
+  getCommitmentContracts,
+  createCommitmentContract,
+  updateCommitmentStatus,
+  createSelfCompassionSession,
+  getPrimingCues,
+  createPrimingCue,
+  updatePrimingCue,
+  deletePrimingCue,
+  getScheduledCues,
+  type Database,
+} from '@dopaforge/db';
+import { Trophy, Zap, Target, Calendar } from 'lucide-react';
+import Confetti from 'react-confetti';
+import { FutureSelfModal } from '@/components/future-self-modal';
+import { WeeklyReviewModal } from '@/components/weekly-review-modal';
+import { Lootbox } from '@/components/lootbox';
+import { ImplementationIntentions } from '@/components/implementation-intentions';
+import { CommitmentContract } from '@/components/commitment-contract';
+import { SelfCompassionModal } from '@/components/self-compassion-modal';
+import { EnvironmentalPriming } from '@/components/environmental-priming';
+import { CueScheduler } from '@/components/cue-scheduler';
+import { NotificationPermission } from '@/components/notification-permission';
+import { observability } from '@/lib/observability';
+
+type Task = Database['public']['Tables']['micro_tasks']['Row'];
+type UserProfile = Database['public']['Tables']['user_profiles']['Row'];
+
+export default function DashboardPage() {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showFutureSelf, setShowFutureSelf] = useState(false);
+  const [showWeeklyReview, setShowWeeklyReview] = useState(false);
+  const [showSelfCompassion, setShowSelfCompassion] = useState(false);
+  const [intentions, setIntentions] = useState<any[]>([]);
+  const [contracts, setContracts] = useState<any[]>([]);
+  const [primingCues, setPrimingCues] = useState<any[]>([]);
+  const [scheduledCues, setScheduledCues] = useState<any[]>([]);
+  const { user } = useUser();
+  const router = useRouter();
+  const { toast } = useToast();
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (!user) return;
+    loadData();
+  }, [user]);
+
+  // Enable real-time sync
+  useRealtimeSync({
+    userId: user?.id || '',
+    onTasksChange: loadData,
+    onProfileChange: loadData,
+  });
+
+  const loadData = async () => {
+    if (!user) return;
+
+    try {
+      const [tasksData, profileData, futureSelfData, needsReview, intentionsData, contractsData, primingCuesData, scheduledCuesData] = await Promise.all([
+        getTodayTasks(user.id),
+        getUserProfile(user.id),
+        getTodayFutureSelf(user.id),
+        needsWeeklyReview(user.id),
+        getImplementationIntentions(user.id),
+        getCommitmentContracts(user.id),
+        getPrimingCues(user.id),
+        getScheduledCues(user.id),
+      ]);
+
+      setTasks(tasksData);
+      setProfile(profileData);
+      setIntentions(intentionsData);
+      setContracts(contractsData);
+      setPrimingCues(primingCuesData);
+      setScheduledCues(scheduledCuesData);
+
+      // Check if user needs to do morning visualization
+      if (!futureSelfData) {
+        setShowFutureSelf(true);
+      }
+
+      // Check if it's Sunday and user needs weekly review
+      if (new Date().getDay() === 0 && needsReview) {
+        setShowWeeklyReview(true);
+      }
+    } catch (error) {
+      toast({
+        title: 'Error loading data',
+        description: 'Please refresh the page',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateTask = async (title: string, estMinutes: number) => {
+    if (!user) return;
+
+    try {
+      const newTask = await observability.trackApiCall('create_task', async () => {
+        return await createTask({
+          user_id: user.id,
+          title,
+          est_minutes: estMinutes,
+          display_order: tasks.length,
+        });
+      });
+
+      observability.trackUserAction('task_created', { estMinutes });
+
+      setTasks([...tasks, newTask]);
+      toast({
+        title: 'Task created',
+        description: `"${title}" added to your list`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error creating task',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleStartTask = (taskId: string) => {
+    router.push(`/focus/${taskId}`);
+  };
+
+  const handleCompleteTask = async (taskId: string) => {
+    // Task completion is handled in the focus page
+    await loadData();
+  };
+
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination || !user) return;
+
+    const items = Array.from(tasks);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setTasks(items);
+
+    try {
+      await reorderTasks(
+        user.id,
+        items.map((task) => task.id)
+      );
+    } catch (error) {
+      toast({
+        title: 'Error reordering tasks',
+        variant: 'destructive',
+      });
+      loadData(); // Reload original order
+    }
+  };
+
+  const completedTasks = tasks.filter((t) => t.status === 'completed');
+  const pendingTasks = tasks.filter((t) => t.status === 'pending');
+  const totalXP = completedTasks.reduce((sum, task) => sum + task.est_minutes, 0);
+
+  const handleFutureSelfSubmit = async (visualization: string, feelings: string[]) => {
+    if (!user) return;
+    
+    try {
+      await createFutureSelf(user.id, visualization, feelings);
+      toast({
+        title: 'Intention set',
+        description: 'Your future self visualization has been saved',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error saving visualization',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleWeeklyReviewSubmit = async (review: {
+    satisfaction: number;
+    burnout: number;
+    addiction: number;
+    reflections: string;
+  }) => {
+    if (!user) return;
+    
+    try {
+      await createWeeklyReview(user.id, {
+        satisfaction_score: review.satisfaction,
+        burnout_score: review.burnout,
+        addiction_score: review.addiction,
+        reflections: review.reflections,
+      });
+      
+      // Adjust lootbox cooldown if addiction score is high
+      if (review.addiction > 3 && profile) {
+        const newCooldown = new Date();
+        newCooldown.setHours(newCooldown.getHours() + 48); // 2 days instead of 1
+        await updateUserProfile(user.id, {
+          lootbox_available_at: newCooldown.toISOString(),
+        });
+      }
+      
+      toast({
+        title: 'Review completed',
+        description: 'Thank you for your feedback!',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error saving review',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleLootboxSpin = async (): Promise<{ type: string; payload: any; }> => {
+    if (!user) throw new Error('No user');
+    
+    try {
+      const reward = await spinLootbox(user.id);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000);
+      await loadData(); // Refresh profile for cooldown
+      return reward;
+    } catch (error: any) {
+      if (error.message === 'Lootbox on cooldown') {
+        toast({
+          title: 'Lootbox not available',
+          description: 'Come back tomorrow for your daily reward!',
+        });
+      } else {
+        toast({
+          title: 'Error spinning lootbox',
+          variant: 'destructive',
+        });
+      }
+      throw error;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+      {showConfetti && (
+        <Confetti
+          recycle={false}
+          numberOfPieces={200}
+          gravity={0.2}
+          onConfettiComplete={() => setShowConfetti(false)}
+        />
+      )}
+
+      <FutureSelfModal
+        open={showFutureSelf}
+        onClose={() => setShowFutureSelf(false)}
+        onSubmit={handleFutureSelfSubmit}
+      />
+
+      <WeeklyReviewModal
+        open={showWeeklyReview}
+        onClose={() => setShowWeeklyReview(false)}
+        onSubmit={handleWeeklyReviewSubmit}
+        weekStats={{
+          tasksCompleted: completedTasks.length,
+          totalXP: totalXP,
+          streakDays: profile?.current_streak || 0,
+        }}
+      />
+
+      <SelfCompassionModal
+        open={showSelfCompassion}
+        onClose={() => setShowSelfCompassion(false)}
+        onComplete={async () => {
+          if (user) {
+            await createSelfCompassionSession(user.id, 'Failed commitment contract');
+            toast({
+              title: 'Self-compassion practiced',
+              description: 'Remember, failure is part of growth',
+            });
+          }
+        }}
+        triggerReason="It's okay that you didn't meet your goal. Let's practice self-kindness."
+      />
+
+      <NotificationPermission />
+
+      <main id="main-content" className="container mx-auto p-6 max-w-7xl">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl font-bold mb-2">Welcome back! 👋</h1>
+          <p className="text-muted-foreground">Let's make today productive</p>
+        </motion.div>
+
+        <div className="grid gap-6 md:grid-cols-4 mb-8">
+          <StatsCard
+            title="Today's XP"
+            value={totalXP}
+            icon={Zap}
+            delay={0.1}
+          />
+          <StatsCard
+            title="Total XP"
+            value={profile?.total_xp || 0}
+            icon={Trophy}
+            delay={0.2}
+          />
+          <StatsCard
+            title="Current Streak"
+            value={`${profile?.current_streak || 0} days`}
+            icon={Calendar}
+            delay={0.3}
+          />
+          <StatsCard
+            title="Tasks Today"
+            value={`${completedTasks.length}/${tasks.length}`}
+            icon={Target}
+            delay={0.4}
+          />
+        </div>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Daily Progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProgressBar
+              value={completedTasks.length}
+              max={Math.max(tasks.length, 1)}
+              label="Tasks Completed"
+            />
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Today's Micro Tasks</CardTitle>
+                <CreateTaskDialog onCreateTask={handleCreateTask} />
+              </CardHeader>
+              <CardContent>
+                <DragDropContext onDragEnd={handleDragEnd}>
+                  <Droppable droppableId="tasks">
+                    {(provided, snapshot) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="space-y-3"
+                      >
+                        <AnimatePresence>
+                          {pendingTasks.length === 0 && completedTasks.length === 0 ? (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              className="text-center py-12 text-muted-foreground"
+                            >
+                              <p className="mb-4">No tasks yet. Create your first micro task!</p>
+                            </motion.div>
+                          ) : (
+                            <>
+                              {pendingTasks.map((task, index) => (
+                                <Draggable key={task.id} draggableId={task.id} index={index}>
+                                  {(provided, snapshot) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                    >
+                                      <TaskCard
+                                        task={task}
+                                        onStart={handleStartTask}
+                                        onComplete={handleCompleteTask}
+                                        isDragging={snapshot.isDragging}
+                                      />
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {completedTasks.map((task) => (
+                                <TaskCard
+                                  key={task.id}
+                                  task={task}
+                                  onStart={handleStartTask}
+                                  onComplete={handleCompleteTask}
+                                />
+                              ))}
+                            </>
+                          )}
+                        </AnimatePresence>
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Small Wins 🎯</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Tasks completed</span>
+                    <span className="text-2xl font-bold">{completedTasks.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Minutes focused</span>
+                    <span className="text-2xl font-bold">{totalXP}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Next Milestone</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ProgressBar
+                  value={profile?.total_xp || 0}
+                  max={profile?.total_xp || 0 < 500 ? 500 : 2000}
+                  label="XP Progress"
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  {profile?.total_xp || 0 < 500
+                    ? `${500 - (profile?.total_xp || 0)} XP to Momentum badge`
+                    : `${2000 - (profile?.total_xp || 0)} XP to Flow Master badge`}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Lootbox
+              onOpen={handleLootboxSpin}
+              lastOpenedAt={profile?.lootbox_available_at ? new Date(profile.lootbox_available_at) : null}
+            />
+
+            <ImplementationIntentions
+              intentions={intentions}
+              onAdd={async (intention) => {
+                await createImplementationIntention(user!.id, intention);
+                await loadData();
+                toast({
+                  title: 'Script created',
+                  description: 'Your implementation intention has been saved',
+                });
+              }}
+              onRemove={async (id) => {
+                await deleteImplementationIntention(id);
+                await loadData();
+              }}
+              onToggle={async (id, active) => {
+                await updateImplementationIntention(id, { active });
+                await loadData();
+              }}
+            />
+
+            <CommitmentContract
+              contracts={contracts}
+              onCreateContract={async (contract) => {
+                await createCommitmentContract(user!.id, contract);
+                await loadData();
+                toast({
+                  title: 'Contract created',
+                  description: 'Your commitment has been sealed',
+                });
+              }}
+              onUpdateStatus={async (id, status) => {
+                await updateCommitmentStatus(id, status);
+                
+                // If failed, trigger self-compassion
+                if (status === 'failed') {
+                  setShowSelfCompassion(true);
+                } else {
+                  toast({
+                    title: 'Contract completed!',
+                    description: 'Congratulations on keeping your commitment',
+                  });
+                }
+                
+                await loadData();
+              }}
+            />
+
+            <EnvironmentalPriming
+              cues={primingCues}
+              onCreateCue={async (cue) => {
+                await createPrimingCue(user!.id, cue);
+                await loadData();
+                toast({
+                  title: 'Priming cue created',
+                  description: 'Your environmental cue has been set up',
+                });
+              }}
+              onUpdateCue={async (id, updates) => {
+                await updatePrimingCue(id, updates);
+                await loadData();
+              }}
+              onDeleteCue={async (id) => {
+                await deletePrimingCue(id);
+                await loadData();
+              }}
+            />
+
+            <CueScheduler
+              cues={scheduledCues}
+              onUpdate={loadData}
+              userId={user!.id}
+            />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
