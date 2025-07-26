@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@dopaforge/ui/components/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dopaforge/ui/components/card';
+import { Button } from '@dopaforge/ui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dopaforge/ui';
 import { Bell, X } from 'lucide-react';
-import { useToast } from '@dopaforge/ui/hooks/use-toast';
+import { useToast } from '@/hooks/useToast';
 
 export function NotificationPermission() {
   const [permission, setPermission] = useState<NotificationPermission>('default');

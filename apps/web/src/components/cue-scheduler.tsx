@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@dopaforge/ui/components/button';
-import { Input } from '@dopaforge/ui/components/input';
-import { Textarea } from '@dopaforge/ui/components/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@dopaforge/ui/components/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dopaforge/ui/components/card';
-import { Label } from '@dopaforge/ui/components/label';
-import { Switch } from '@dopaforge/ui/components/switch';
-import { useToast } from '@dopaforge/ui/hooks/use-toast';
+import { Button } from '@dopaforge/ui';
+import { Input } from '@dopaforge/ui';
+import { Textarea } from '@dopaforge/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@dopaforge/ui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dopaforge/ui';
+import { Label } from '@dopaforge/ui';
+import { Switch } from '@dopaforge/ui';
+import { useToast } from '@/hooks/useToast';
 import { Calendar, Clock, Trash2, Bell, BellOff } from 'lucide-react';
 import { createScheduledCue, updateScheduledCue, deleteScheduledCue } from '@dopaforge/db';
 
