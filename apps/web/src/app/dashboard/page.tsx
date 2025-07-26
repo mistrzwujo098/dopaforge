@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DragDropWrapper } from '@/components/drag-drop-wrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@dopaforge/ui';
 import { TaskCard } from '@/components/task-card';
 import { CreateTaskDialog } from '@/components/create-task-dialog';
@@ -385,8 +385,9 @@ export default function DashboardPage() {
                 <CreateTaskDialog onCreateTask={handleCreateTask} />
               </CardHeader>
               <CardContent>
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  <Droppable droppableId="tasks">
+                <DragDropWrapper>
+                  <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="tasks">
                     {(provided, snapshot) => (
                       <div
                         {...provided.droppableProps}
@@ -438,6 +439,7 @@ export default function DashboardPage() {
                     )}
                   </Droppable>
                 </DragDropContext>
+                </DragDropWrapper>
               </CardContent>
             </Card>
           </div>

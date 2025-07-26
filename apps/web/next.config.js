@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@dopaforge/ui', '@dopaforge/db'],
+  reactStrictMode: false, // Required for react-beautiful-dnd
   async headers() {
     return [
       {
