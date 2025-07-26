@@ -124,7 +124,49 @@ export async function getUserProfile(userId: string) {
     .single();
 
   if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
+  
+  // If no profile exists, create one
+  if (!data) {
+    return await createUserProfile(userId);
+  }
+  
   return data as UserProfile | null;
+}
+
+export async function createUserProfile(userId: string) {
+  // Get user email for display name fallback
+  const { data: userData } = await supabase.auth.getUser();
+  const displayName = userData?.user?.email || 'User';
+  
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .insert({
+      user_id: userId,
+      display_name: displayName,
+      total_xp: 0,
+      current_streak: 0,
+      longest_streak: 0,
+      last_active: new Date().toISOString(),
+      break_reminder: true,
+      lootbox_available_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) {
+    // If it's a unique constraint error, try to fetch the existing profile
+    if (error.code === '23505') {
+      const { data: existingProfile } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      return existingProfile as UserProfile | null;
+    }
+    throw error;
+  }
+  
+  return data as UserProfile;
 }
 
 export async function updateUserProfile(userId: string, updates: Partial<UserProfile>) {

@@ -29,7 +29,8 @@ export async function middleware(req: NextRequest) {
     }
 
     // If user is not signed in and the current path is not /auth redirect the user to /auth
-    if (!user && req.nextUrl.pathname !== '/auth') {
+    // But skip for static files and auth callback
+    if (!user && req.nextUrl.pathname !== '/auth' && !req.nextUrl.pathname.startsWith('/auth/')) {
       return NextResponse.redirect(new URL('/auth', req.url));
     }
 
