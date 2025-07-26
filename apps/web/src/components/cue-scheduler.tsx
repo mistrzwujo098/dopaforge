@@ -43,10 +43,17 @@ const DAYS_OF_WEEK = [
 export function CueScheduler({ cues, onUpdate, userId }: CueSchedulerProps) {
   const { toast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
-  const [newCue, setNewCue] = useState({
+  const [newCue, setNewCue] = useState<{
+    title: string;
+    message: string;
+    schedule_type: 'daily' | 'weekly' | 'specific';
+    schedule_time: string;
+    schedule_days: number[];
+    specific_date: string;
+  }>({
     title: '',
     message: '',
-    schedule_type: 'daily' as const,
+    schedule_type: 'daily',
     schedule_time: '09:00',
     schedule_days: [1, 2, 3, 4, 5], // Weekdays by default
     specific_date: '',
