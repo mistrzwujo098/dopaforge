@@ -11,10 +11,21 @@ export function useUser() {
   const supabase = createClient();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+    if (!supabase) {
+      console.error('Supabase client not initialized - missing environment variables');
       setLoading(false);
+      return;
+    }
+
+    const getUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error('Error getting user:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     getUser();
@@ -23,7 +34,7 @@ export function useUser() {
       setUser(session?.user ?? null);
     });
 
-    return () => subscription.unsubscribe();
+    return () => subscription?.unsubscribe();
   }, [supabase]);
 
   return { user, loading };

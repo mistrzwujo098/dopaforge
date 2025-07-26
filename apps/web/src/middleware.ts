@@ -9,9 +9,9 @@ export async function middleware(req: NextRequest) {
   // Check if Supabase environment variables are configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     console.error('Supabase environment variables are not configured');
-    // Allow access to auth page when Supabase is not configured
-    if (req.nextUrl.pathname !== '/auth') {
-      return NextResponse.redirect(new URL('/auth', req.url));
+    // Redirect to setup page when Supabase is not configured
+    if (req.nextUrl.pathname !== '/setup') {
+      return NextResponse.redirect(new URL('/setup', req.url));
     }
     return res;
   }
@@ -45,5 +45,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|sw.js|manifest.json|icon-.*\.png|screenshot-.*\.png|sounds).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|sw.js|manifest.json|icon-.*\.png|screenshot-.*\.png|sounds|setup).*)'],
 };
