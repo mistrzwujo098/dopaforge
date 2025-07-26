@@ -1,5 +1,5 @@
 // path: apps/web/src/app/auth/callback/route.ts
-import { createServerSupabaseClient } from '@/lib/auth';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 

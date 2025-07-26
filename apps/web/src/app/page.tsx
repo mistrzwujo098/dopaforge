@@ -1,12 +1,12 @@
 // path: apps/web/src/app/page.tsx
 import { redirect } from 'next/navigation';
-import { createServerClient } from '@/lib/auth-server';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 // Prevent static generation during build
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const supabase = createServerClient();
+  const supabase = createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

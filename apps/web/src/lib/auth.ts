@@ -1,4 +1,3 @@
 // path: apps/web/src/lib/auth.ts
-// Re-export the new client
+// Re-export only the browser client from here
 export { createClient } from './supabase-client';
-export { createServerSupabaseClient } from './supabase-server';
