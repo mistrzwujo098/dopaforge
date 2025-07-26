@@ -1,0 +1,239 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8.14.1'
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Run linting
+        run: pnpm lint
+        
+      - name: Check formatting
+        run: pnpm format:check
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Run unit tests
+        run: pnpm test:unit
+        
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: supabase/postgres:15.1.0.117
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test123
+          POSTGRES_DB: dopaforge_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+          
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Setup test database
+        env:
+          DATABASE_URL: postgresql://postgres:test123@localhost:5432/dopaforge_test
+        run: |
+          pnpm db:migrate:test
+          
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:test123@localhost:5432/dopaforge_test
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+          REDIS_URL: redis://localhost:6379
+        run: pnpm test:integration
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: supabase/postgres:15.1.0.117
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test123
+          POSTGRES_DB: dopaforge_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build application
+        env:
+          DATABASE_URL: postgresql://postgres:test123@localhost:5432/dopaforge_test
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+        run: pnpm build
+        
+      - name: Run E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          start: pnpm start
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          browser: chrome
+          record: true
+          parallel: true
+          group: 'E2E Tests'
+        env:
+          DATABASE_URL: postgresql://postgres:test123@localhost:5432/dopaforge_test
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-screenshots
+          path: apps/web/cypress/screenshots
+          
+      - name: Upload videos
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-videos
+          path: apps/web/cypress/videos
+
+  docker-tests:
+    name: Docker Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Docker tests
+        run: |
+          chmod +x ./scripts/test-docker.sh
+          ./scripts/test-docker.sh all
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-test-results
+          path: test-results/
+
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Type check
+        run: pnpm turbo run type-check
+        
+      - name: Build all packages
+        run: pnpm build
+        
+      - name: Check bundle size
+        run: |
+          npm install -g @next/bundle-analyzer
+          cd apps/web
+          ANALYZE=true pnpm build

@@ -1,0 +1,61 @@
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat python3 make g++
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@8.14.1 --activate
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json ./apps/web/
+COPY packages/db/package.json ./packages/db/
+COPY packages/ui/package.json ./packages/ui/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Test runner stage
+FROM base AS runner
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@8.14.1 --activate
+
+# Install Chrome for E2E tests
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    nodejs \
+    yarn
+
+# Tell Puppeteer to skip installing Chrome. We'll be using the installed package.
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# Copy node_modules and source code
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
+COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
+COPY . .
+
+# Build the application
+RUN pnpm build
+
+# Create test user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S testuser -u 1001
+USER testuser
+
+# Default command
+CMD ["pnpm", "test:all"]

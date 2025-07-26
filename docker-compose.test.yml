@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Test database - PostgreSQL with Supabase extensions
+  test-db:
+    image: supabase/postgres:15.1.0.117
+    container_name: dopaforge-test-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test123
+      POSTGRES_DB: dopaforge_test
+    ports:
+      - "54322:5432"
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Supabase Studio for test database inspection
+  test-studio:
+    image: supabase/studio:latest
+    container_name: dopaforge-test-studio
+    environment:
+      STUDIO_PG_META_URL: http://test-db:5432
+      POSTGRES_PASSWORD: test123
+    ports:
+      - "54323:3000"
+    depends_on:
+      test-db:
+        condition: service_healthy
+
+  # Redis for caching during tests
+  test-redis:
+    image: redis:7-alpine
+    container_name: dopaforge-test-redis
+    ports:
+      - "6380:6379"
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - test-redis-data:/data
+
+  # Test runner container
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: dopaforge-test-runner
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:test123@test-db:5432/dopaforge_test
+      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+      REDIS_URL: redis://test-redis:6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      test-db:
+        condition: service_healthy
+      test-redis:
+        condition: service_started
+    command: pnpm test:all
+
+volumes:
+  test-db-data:
+  test-redis-data:
