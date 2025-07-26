@@ -22,8 +22,10 @@ class ObservabilityService {
 
   constructor() {
     this.sessionId = this.generateSessionId();
-    this.setupErrorHandlers();
-    this.setupPerformanceObserver();
+    if (typeof window !== 'undefined') {
+      this.setupErrorHandlers();
+      this.setupPerformanceObserver();
+    }
   }
 
   private generateSessionId(): string {

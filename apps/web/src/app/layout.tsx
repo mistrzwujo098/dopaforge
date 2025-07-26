@@ -1,5 +1,5 @@
 // path: apps/web/src/app/layout.tsx
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import '@/styles/globals.css';
 import { Toaster } from '@/components/toaster';
@@ -11,12 +11,13 @@ export const metadata: Metadata = {
   title: 'DopaForge - Hack your dopamine, forge your habits',
   description: 'Transform procrastination into productivity with science-backed motivation system',
   manifest: '/manifest.json',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: '#10b981',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
 };
 
 export default function RootLayout({
