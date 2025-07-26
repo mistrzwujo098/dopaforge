@@ -40,19 +40,13 @@ function AuthForm() {
         throw new Error('Authentication service is not configured. Please check environment variables.');
       }
 
-      const { error } = isSignUp 
-        ? await supabase.auth.signInWithOtp({ 
-            email,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback`,
-            }
-          })
-        : await supabase.auth.signInWithOtp({ 
-            email,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback`,
-            }
-          });
+      const { error } = await supabase.auth.signInWithOtp({ 
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          shouldCreateUser: isSignUp, // This ensures user is only created on sign up
+        }
+      });
 
       if (error) throw error;
 

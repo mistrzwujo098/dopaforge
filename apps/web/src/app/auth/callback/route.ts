@@ -51,9 +51,14 @@ export async function GET(request: NextRequest) {
 
       console.log('User authenticated successfully:', user.id);
       
-      // Create response with redirect
-      const redirectUrl = new URL(next, requestUrl.origin);
-      return NextResponse.redirect(redirectUrl);
+      // Create response with redirect and proper cookies
+      const response = NextResponse.redirect(new URL(next, requestUrl.origin));
+      
+      // Ensure cookies are set properly
+      const headers = response.headers;
+      headers.set('x-middleware-cache', 'no-cache');
+      
+      return response;
     }
 
     // If no code or error, just redirect to auth
