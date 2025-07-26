@@ -165,7 +165,7 @@ export async function getUserBadges(userId: string) {
 }
 
 export async function checkAndGrantBadges(userId: string, totalXp: number) {
-  const badges = await getBadges();
+  await getBadges(); // Verify badges exist
   const userBadges = await getUserBadges(userId);
   const ownedBadgeCodes = userBadges.map((ub: any) => ub.badge_code);
 
@@ -389,7 +389,7 @@ export async function spinLootbox(userId: string) {
   }
 
   // Save to history
-  const { data: historyData, error: historyError } = await supabase
+  const { error: historyError } = await supabase
     .from('lootbox_history')
     .insert({
       user_id: userId,
