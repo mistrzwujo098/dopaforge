@@ -74,7 +74,7 @@ export default function DashboardPage() {
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const supabase = createClient();
+  const supabase = createClient;
 
   const loadData = async () => {
     if (!user) return;

@@ -22,7 +22,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { darkMode, toggleDarkMode } = useThemeStore();
-  const supabase = createClient();
+  const supabase = createClient;
 
   useEffect(() => {
     if (user) loadSettings();
