@@ -1,7 +1,7 @@
 // path: apps/web/src/app/auth/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 // Prevent static generation during build
@@ -11,7 +11,7 @@ import { createClient } from '@/lib/auth';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@dopaforge/ui';
 import { useToast } from '@/hooks/useToast';
 
-export default function AuthPage() {
+function AuthForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -117,5 +117,17 @@ export default function AuthPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <AuthForm />
+    </Suspense>
   );
 }
