@@ -73,18 +73,6 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const supabase = createClient();
 
-  useEffect(() => {
-    if (!user) return;
-    loadData();
-  }, [user]);
-
-  // Enable real-time sync
-  useRealtimeSync({
-    userId: user?.id || '',
-    onTasksChange: loadData,
-    onProfileChange: loadData,
-  });
-
   const loadData = async () => {
     if (!user) return;
 
@@ -126,6 +114,18 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!user) return;
+    loadData();
+  }, [user]);
+
+  // Enable real-time sync
+  useRealtimeSync({
+    userId: user?.id || '',
+    onTasksChange: loadData,
+    onProfileChange: loadData,
+  });
 
   const handleCreateTask = async (title: string, estMinutes: number) => {
     if (!user) return;
