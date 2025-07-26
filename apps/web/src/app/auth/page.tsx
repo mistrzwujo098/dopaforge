@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/useToast';
 
 function AuthForm() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   // const router = useRouter();
@@ -40,20 +41,26 @@ function AuthForm() {
         throw new Error('Authentication service is not configured. Please check environment variables.');
       }
 
-      const { error } = await supabase.auth.signInWithOtp({ 
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          shouldCreateUser: isSignUp, // This ensures user is only created on sign up
-        }
-      });
+      let error;
+      
+      if (isSignUp) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        error = signUpError;
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        error = signInError;
+      }
 
       if (error) throw error;
 
-      toast({
-        title: 'Check your email',
-        description: 'We sent you a magic link to sign in.',
-      });
+      // Redirect to dashboard on success
+      window.location.href = '/dashboard';
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -90,13 +97,26 @@ function AuthForm() {
                 disabled={loading}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                minLength={6}
+              />
+            </div>
             <Button
               type="submit"
               className="w-full"
               variant={"gradient" as any}
-              disabled={loading || !email}
+              disabled={loading || !email || !password}
             >
-              {loading ? 'Sending...' : `Send Magic Link`}
+              {loading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
