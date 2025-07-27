@@ -65,18 +65,20 @@ DopaForge is a web application that leverages behavioral psychology and gamifica
 
 3. **Set up environment variables**
    ```bash
-   cp apps/web/.env.local.example apps/web/.env.local
+   cp apps/web/.env.example apps/web/.env.local
    ```
    
-   Fill in your Supabase credentials:
+   Fill in your credentials (see `.env.example` for all options):
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   GEMINI_API_KEY=your_gemini_api_key
    ```
 
 4. **Set up Supabase Database**
    
    - Go to your [Supabase Dashboard](https://app.supabase.com)
+   - Follow the instructions in `COMPLETE_MIGRATION_GUIDE.md`
    - Create a new project
    - Once created, go to SQL Editor
    - Run the SQL from `supabase/schema.sql` to create all tables and policies
@@ -139,8 +141,14 @@ pnpm start
 
 1. Push your code to GitHub
 2. Import project to Vercel
-3. Set environment variables
-4. Deploy!
+3. Set environment variables (see `VERCEL_DEPLOYMENT_CHECKLIST.md`)
+4. Configure build settings:
+   - Root Directory: `apps/web`
+   - Build Command: `cd ../.. && npm run build`
+   - Install Command: `npm install`
+5. Deploy!
+
+**Important**: See `VERCEL_DEPLOYMENT_CHECKLIST.md` for complete deployment guide.
 
 ### Docker
 
