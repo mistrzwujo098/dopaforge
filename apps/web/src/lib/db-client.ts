@@ -60,32 +60,12 @@ export async function updateTask(id: string, update: MicroTaskUpdate) {
   return data as MicroTask;
 }
 
-export async function reorderTasks(userId: string, taskId: string, newOrder: number) {
+export async function reorderTasks(userId: string, taskIds: string[]) {
   const supabase = createSupabaseBrowser();
   
-  // Get all tasks
-  const { data: tasks, error: fetchError } = await supabase
-    .from('micro_tasks')
-    .select('*')
-    .eq('user_id', userId)
-    .order('display_order', { ascending: true });
-
-  if (fetchError) throw fetchError;
-  if (!tasks) return;
-
-  // Find the task being moved
-  const taskIndex = tasks.findIndex(t => t.id === taskId);
-  if (taskIndex === -1) return;
-
-  // Remove the task from its current position
-  const [movedTask] = tasks.splice(taskIndex, 1);
-  
-  // Insert it at the new position
-  tasks.splice(newOrder, 0, movedTask);
-
-  // Update all display_order values
-  const updates = tasks.map((task, index) => ({
-    id: task.id,
+  // Update all display_order values based on the new order
+  const updates = taskIds.map((taskId, index) => ({
+    id: taskId,
     display_order: index
   }));
 
@@ -96,7 +76,10 @@ export async function reorderTasks(userId: string, taskId: string, newOrder: num
       .update({ display_order: update.display_order })
       .eq('id', update.id);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error reordering tasks:', error);
+      throw error;
+    }
   }
 }
 
@@ -424,22 +407,31 @@ export async function getScheduledCues(userId: string) {
   return data || [];
 }
 
+// Lootbox functions
+export async function updateLootboxAvailability(userId: string, availableAt: Date) {
+  const supabase = createSupabaseBrowser();
+  const { error } = await supabase
+    .from('user_profiles')
+    .update({ lootbox_available_at: availableAt.toISOString() })
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Error updating lootbox availability:', error);
+    throw error;
+  }
+}
+
 // Re-export other functions that don't need modification
 export {
-  getRewards,
-  createReward,
+  getUserRewards,
   getBadges,
   getUserBadges,
-  grantBadge,
-  getHabitCues,
-  createHabitCue,
-  deleteHabitCue,
+  checkAndGrantBadges,
   getOpenLoops,
   createOpenLoop,
   resumeOpenLoop,
-  updateLootboxAvailability,
+  spinLootbox,
   getLootboxHistory,
-  createLootboxReward,
   createScheduledCue,
   updateScheduledCue,
   deleteScheduledCue
