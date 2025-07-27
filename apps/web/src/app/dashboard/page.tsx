@@ -373,7 +373,7 @@ export default function DashboardPage() {
         onClose={() => setShowSelfCompassion(false)}
         onComplete={async () => {
           if (user) {
-            await createSelfCompassionSession(user.id, 'Failed commitment contract');
+            await createSelfCompassionSession(user.id, 'Failed commitment contract', 300); // 5 minutes
             toast({
               title: 'Praktykowane samowspółczucie',
               description: 'Pamiętaj, porażka jest częścią rozwoju',
