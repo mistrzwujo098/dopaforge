@@ -7,16 +7,17 @@ import { useSearchParams } from 'next/navigation';
 // Prevent static generation during build
 export const dynamic = 'force-dynamic';
 // import { useRouter } from 'next/navigation';
-import { getSupabaseClient } from '@/lib/supabase';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@dopaforge/ui';
 import { useToast } from '@/hooks/useToast';
+import { useRouter } from 'next/navigation';
 
 function AuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  // const router = useRouter();
+  const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
 
@@ -36,47 +37,54 @@ function AuthForm() {
     setLoading(true);
 
     try {
-      const supabase = getSupabaseClient();
-      
-      if (!supabase) {
-        throw new Error('Authentication service is not configured. Please check environment variables.');
-      }
+      const supabase = createSupabaseBrowser();
 
-      let error;
-      
       if (isSignUp) {
-        const { error: signUpError } = await supabase.auth.signUp({
+        // Sign up new user
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
           }
         });
-        error = signUpError;
         
-        if (!error) {
-          toast({
-            title: 'Konto utworzone!',
-            description: 'Sprawdź email aby potwierdzić rejestrację.',
-          });
-          return;
+        if (error) throw error;
+        
+        toast({
+          title: 'Konto utworzone!',
+          description: 'Sprawdź email aby potwierdzić rejestrację.',
+        });
+        
+        // If email confirmation is disabled, auto-login
+        if (data.user && data.session) {
+          router.push('/dashboard');
         }
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        // Sign in existing user
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        error = signInError;
+        
+        if (error) throw error;
+        
+        if (data.session) {
+          toast({
+            title: 'Zalogowano!',
+            description: 'Przekierowywanie do aplikacji...',
+          });
+          
+          router.push('/dashboard');
+        }
       }
-
-      if (error) throw error;
-
-      // Redirect to dashboard on success
-      window.location.href = '/dashboard';
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'An unexpected error occurred',
+        title: 'Błąd',
+        description: error.message === 'Invalid login credentials' 
+          ? 'Nieprawidłowy email lub hasło' 
+          : error.message || 'Wystąpił nieoczekiwany błąd',
         variant: 'destructive',
       });
     } finally {

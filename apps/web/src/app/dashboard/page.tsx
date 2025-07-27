@@ -15,7 +15,7 @@ import { ProgressBar } from '@/components/progress-bar';
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/useToast';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import {
   getTodayTasks,
   createTask,

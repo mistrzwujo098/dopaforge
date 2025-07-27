@@ -12,50 +12,44 @@ export function getSupabaseClient() {
     return supabaseInstance;
   }
 
-  // Only create client in browser environment
+  // Check if we're in browser and have config
   if (typeof window === 'undefined') {
     return null as any;
   }
 
+  // Get environment variables - these should be injected at build time
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Missing Supabase environment variables');
-    // Return a mock client that will fail gracefully
-    return {
-      auth: {
-        getSession: async () => ({ data: { session: null }, error: new Error('Supabase not configured') }),
-        onAuthStateChange: () => ({ data: { subscription: null } }),
-        signOut: async () => ({ error: null }),
-      },
-      from: () => ({
-        select: () => ({ data: null, error: new Error('Supabase not configured') }),
-        insert: () => ({ data: null, error: new Error('Supabase not configured') }),
-        update: () => ({ data: null, error: new Error('Supabase not configured') }),
-        delete: () => ({ data: null, error: new Error('Supabase not configured') }),
-      }),
-    } as any;
+    console.error('Supabase configuration missing:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseAnonKey,
+    });
+    return null as any;
   }
 
-  // Create singleton instance
-  supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      storageKey: 'dopaforge-auth',
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    },
-    global: {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    },
-  });
+  try {
+    // Create singleton instance with minimal config
+    supabaseInstance = createClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          storage: window.localStorage,
+        },
+      }
+    );
 
-  return supabaseInstance;
+    console.log('Supabase client initialized successfully');
+    return supabaseInstance;
+  } catch (error) {
+    console.error('Failed to initialize Supabase client:', error);
+    return null as any;
+  }
 }
 
-// Export singleton getter
-export const supabase = typeof window !== 'undefined' ? getSupabaseClient() : null;
+// Don't initialize on import - let components do it
+export const supabase = null;

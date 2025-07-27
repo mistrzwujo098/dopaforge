@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getSupabaseClient } from '@/lib/supabase';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User, Session } from '@supabase/supabase-js';
 
 export function useUser() {
@@ -10,10 +10,12 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = getSupabaseClient();
+    let supabase: any;
     
-    if (!supabase) {
-      console.error('Supabase client not initialized - missing environment variables');
+    try {
+      supabase = createSupabaseBrowser();
+    } catch (error) {
+      console.error('Failed to initialize Supabase:', error);
       setLoading(false);
       return;
     }
