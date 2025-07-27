@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '../../../lib/supabase-server';
+import { createClient } from '../../../../lib/supabase-server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getRateLimiters, getClientIdentifier, getRateLimitHeaders } from '../../../lib/api/distributed-rate-limiter';
-import { createSafeErrorResponse } from '../../../lib/error-handling';
+import { getRateLimiters, getClientIdentifier, getRateLimitHeaders } from '../../../../lib/api/distributed-rate-limiter';
+import { createSafeErrorResponse } from '../../../../lib/error-handling';
 
 export async function POST(request: NextRequest) {
   try {
