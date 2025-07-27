@@ -74,7 +74,35 @@ export function createSupabaseBrowser() {
     console.log('Creating Supabase client with URL:', cleanUrl.substring(0, 30) + '...');
     console.log('Key length after cleanup:', cleanKey.length);
     
-    browserClient = createBrowserClient<Database>(cleanUrl, cleanKey);
+    browserClient = createBrowserClient<Database>(cleanUrl, cleanKey, {
+      cookies: {
+        get: (name: string) => {
+          if (typeof document !== 'undefined') {
+            const cookies = document.cookie.split(';');
+            const cookie = cookies.find(c => c.trim().startsWith(`${name}=`));
+            return cookie ? cookie.split('=')[1] : undefined;
+          }
+          return undefined;
+        },
+        set: (name: string, value: string, options?: any) => {
+          if (typeof document !== 'undefined') {
+            document.cookie = `${name}=${value}; path=/; ${options?.maxAge ? `max-age=${options.maxAge};` : ''}`;
+          }
+        },
+        remove: (name: string) => {
+          if (typeof document !== 'undefined') {
+            document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+          }
+        },
+      },
+      global: {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+      },
+    });
     console.log('Supabase client created successfully');
     return browserClient;
   } catch (error) {

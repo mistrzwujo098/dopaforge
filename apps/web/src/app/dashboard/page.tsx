@@ -31,18 +31,20 @@ import {
   createWeeklyReview,
   getImplementationIntentions,
   createImplementationIntention,
-  updateImplementationIntention,
   deleteImplementationIntention,
-  spinLootbox,
   getCommitmentContracts,
   createCommitmentContract,
-  updateCommitmentStatus,
   createSelfCompassionSession,
   getPrimingCues,
   createPrimingCue,
-  updatePrimingCue,
   deletePrimingCue,
   getScheduledCues,
+} from '@/lib/db-client';
+import {
+  updateImplementationIntention,
+  spinLootbox,
+  updateCommitmentStatus,
+  updatePrimingCue,
   type Database,
 } from '@dopaforge/db';
 import { Trophy, Zap, Target, Calendar } from 'lucide-react';
