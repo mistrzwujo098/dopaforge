@@ -37,7 +37,26 @@ function AuthForm() {
     setLoading(true);
 
     try {
-      const supabase = createSupabaseBrowser();
+      // First check if we can create client
+      let supabase;
+      try {
+        supabase = createSupabaseBrowser();
+      } catch (clientError: any) {
+        console.error('Failed to create Supabase client:', clientError);
+        toast({
+          title: 'Błąd konfiguracji',
+          description: 'Aplikacja nie jest prawidłowo skonfigurowana. Sprawdź zmienne środowiskowe.',
+          variant: 'destructive',
+        });
+        
+        // Show debug info in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Debug: Visit /test-env to check environment variables');
+        }
+        
+        setLoading(false);
+        return;
+      }
 
       if (isSignUp) {
         // Sign up new user
@@ -80,11 +99,23 @@ function AuthForm() {
       }
     } catch (error: any) {
       console.error('Auth error:', error);
+      
+      // Better error messages
+      let errorMessage = 'Wystąpił nieoczekiwany błąd';
+      
+      if (error.message?.includes('fetch')) {
+        errorMessage = 'Nie można połączyć z serwerem. Sprawdź konfigurację.';
+      } else if (error.message === 'Invalid login credentials') {
+        errorMessage = 'Nieprawidłowy email lub hasło';
+      } else if (error.message?.includes('User already registered')) {
+        errorMessage = 'Użytkownik z tym emailem już istnieje';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: 'Błąd',
-        description: error.message === 'Invalid login credentials' 
-          ? 'Nieprawidłowy email lub hasło' 
-          : error.message || 'Wystąpił nieoczekiwany błąd',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -147,6 +178,15 @@ function AuthForm() {
             >
               {isSignUp ? 'Masz już konto? Zaloguj się' : "Pierwszy raz? Załóż konto"}
             </button>
+          </div>
+          {/* Debug link - remove in production */}
+          <div className="mt-4 text-center">
+            <a
+              href="/test-env"
+              className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              Problem z logowaniem? Sprawdź konfigurację
+            </a>
           </div>
         </CardContent>
       </Card>

@@ -47,20 +47,27 @@ export function createSupabaseBrowser() {
   const { url, key } = getEnvVars();
 
   if (!url || !key) {
-    console.error('Supabase configuration missing. Please check environment variables in Vercel.');
-    // Return a mock that won't crash the app
-    return {
-      auth: {
-        signUp: async () => ({ data: null, error: new Error('Supabase not configured') }),
-        signInWithPassword: async () => ({ data: null, error: new Error('Supabase not configured') }),
-        signOut: async () => ({ error: null }),
-        getSession: async () => ({ data: { session: null }, error: null }),
-        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-      },
-    } as any;
+    console.error('Supabase configuration missing. URL:', url, 'Key exists:', !!key);
+    // Throw error instead of returning mock
+    throw new Error(
+      'Supabase configuration missing. Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel Environment Variables.'
+    );
+  }
+
+  // Validate URL format
+  if (!url.startsWith('https://') || !url.includes('.supabase.co')) {
+    console.error('Invalid Supabase URL format:', url);
+    throw new Error('Invalid Supabase URL format. It should be https://[project-ref].supabase.co');
+  }
+
+  // Validate key format
+  if (!key.startsWith('eyJ')) {
+    console.error('Invalid Supabase anon key format');
+    throw new Error('Invalid Supabase anon key format');
   }
 
   try {
+    console.log('Creating Supabase client with URL:', url.substring(0, 30) + '...');
     browserClient = createBrowserClient<Database>(url, key);
     console.log('Supabase client created successfully');
     return browserClient;
