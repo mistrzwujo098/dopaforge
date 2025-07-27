@@ -86,8 +86,8 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
     } catch (error) {
       console.error('AI breakdown error:', error);
       toast({
-        title: 'AI Breakdown Failed',
-        description: 'Could not generate task breakdown. Please try again.',
+        title: 'Błąd podziału AI',
+        description: 'Nie udało się wygenerować podziału zadania. Spróbuj ponownie.',
         variant: 'destructive',
       });
     } finally {
@@ -105,8 +105,8 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
       }
       
       toast({
-        title: 'Tasks Created!',
-        description: `Successfully created ${tasksToCreate.length} micro-tasks`,
+        title: 'Zadania utworzone!',
+        description: `Pomyślnie utworzono ${tasksToCreate.length} ${tasksToCreate.length === 1 ? 'mikro-zadanie' : tasksToCreate.length < 5 ? 'mikro-zadania' : 'mikro-zadań'}`,
       });
       
       // Reset dialog
@@ -119,8 +119,8 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
     } catch (error) {
       console.error('Error creating tasks:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to create some tasks. Please try again.',
+        title: 'Błąd',
+        description: 'Nie udało się utworzyć niektórych zadań. Spróbuj ponownie.',
         variant: 'destructive',
       });
     } finally {
@@ -144,19 +144,19 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button variant="gradient" size="lg" className="shadow-lg" data-hint="create-task">
             <Plus className="mr-2 h-5 w-5" />
-            New Micro Task
+            Nowe Mikro Zadanie
           </Button>
         </motion.div>
       </DialogTrigger>
       <DialogContent className={showAIBreakdown ? "sm:max-w-[600px]" : "sm:max-w-[425px]"}>
         <DialogHeader>
           <DialogTitle>
-            {showAIBreakdown ? 'AI-Generated Tasks' : 'Create Micro Task'}
+            {showAIBreakdown ? 'Zadania wygenerowane przez AI' : 'Utwórz Mikro Zadanie'}
           </DialogTitle>
           <DialogDescription>
             {showAIBreakdown 
-              ? 'Select which tasks you want to create'
-              : 'Break down your work into small, focused tasks (≤ 90 min)'
+              ? 'Wybierz zadania, które chcesz utworzyć'
+              : 'Podziel swoją pracę na małe, skoncentrowane zadania (≤ 90 min)'
             }
           </DialogDescription>
         </DialogHeader>
@@ -165,10 +165,10 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
           <>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="title">Task Title</Label>
+                <Label htmlFor="title">Tytuł zadania</Label>
                 <Input
                   id="title"
-                  placeholder="e.g., Write project proposal introduction"
+                  placeholder="np. Napisz wstęp do propozycji projektu"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onKeyDown={(e) => {
@@ -176,7 +176,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                       handleCreate();
                     }
                   }}
-                  aria-label="Task title"
+                  aria-label="Tytuł zadania"
                   aria-required="true"
                   autoFocus
                 />
@@ -184,7 +184,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
               
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="minutes">Estimated Time</Label>
+                  <Label htmlFor="minutes">Szacowany czas</Label>
                   <span className="text-sm font-medium">{estMinutes[0]} min</span>
                 </div>
                 <Slider
@@ -195,7 +195,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                   value={estMinutes}
                   onValueChange={setEstMinutes}
                   className="w-full"
-                  aria-label="Estimated time in minutes"
+                  aria-label="Szacowany czas w minutach"
                   aria-valuemin={15}
                   aria-valuemax={90}
                   aria-valuenow={estMinutes[0]}
@@ -210,12 +210,12 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
               <div className="border-t pt-4 space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <span>AI Task Breakdown</span>
+                  <span>Podział zadania przez AI</span>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-2">
-                    <Label htmlFor="energy">Your Energy Level</Label>
+                    <Label htmlFor="energy">Twój poziom energii</Label>
                     <Select value={energyLevel} onValueChange={(value: any) => setEnergyLevel(value)}>
                       <SelectTrigger id="energy">
                         <SelectValue />
@@ -224,19 +224,19 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                         <SelectItem value="low">
                           <div className="flex items-center gap-2">
                             <Zap className="h-3 w-3" />
-                            Low
+                            Niski
                           </div>
                         </SelectItem>
                         <SelectItem value="medium">
                           <div className="flex items-center gap-2">
                             <Zap className="h-3 w-3" />
-                            Medium
+                            Średni
                           </div>
                         </SelectItem>
                         <SelectItem value="high">
                           <div className="flex items-center gap-2">
                             <Zap className="h-3 w-3" />
-                            High
+                            Wysoki
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -244,7 +244,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                   </div>
                   
                   <div className="grid gap-2">
-                    <Label htmlFor="time">Available Time</Label>
+                    <Label htmlFor="time">Dostępny czas</Label>
                     <div className="flex items-center gap-2">
                       <Slider
                         id="time"
@@ -269,7 +269,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 onClick={() => setOpen(false)}
                 disabled={loading || aiLoading}
               >
-                Cancel
+                Anuluj
               </Button>
               <Button
                 type="button"
@@ -280,12 +280,12 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 {aiLoading ? (
                   <>
                     <Brain className="mr-2 h-4 w-4 animate-pulse" />
-                    Analyzing...
+                    Analizowanie...
                   </>
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    AI Breakdown
+                    Podział AI
                   </>
                 )}
               </Button>
@@ -294,7 +294,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 disabled={!title.trim() || loading || aiLoading}
                 variant="gradient"
               >
-                {loading ? 'Creating...' : 'Create Task'}
+                {loading ? 'Tworzenie...' : 'Utwórz zadanie'}
               </Button>
             </DialogFooter>
           </>
@@ -327,7 +327,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                                 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
                                 : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                             }`}>
-                              {task.difficulty}
+                              {task.difficulty === 'easy' ? 'łatwe' : task.difficulty === 'medium' ? 'średnie' : 'trudne'}
                             </span>
                             <span className="text-xs text-muted-foreground flex items-center gap-1">
                               <Clock className="h-3 w-3" />
@@ -354,7 +354,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 }}
                 disabled={loading}
               >
-                Back
+                Wstecz
               </Button>
               <Button
                 onClick={handleCreateSelectedTasks}
@@ -362,8 +362,8 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 variant="gradient"
               >
                 {loading 
-                  ? 'Creating...' 
-                  : `Create ${selectedTasks.size} Task${selectedTasks.size !== 1 ? 's' : ''}`
+                  ? 'Tworzenie...' 
+                  : `Utwórz ${selectedTasks.size} ${selectedTasks.size === 1 ? 'zadanie' : selectedTasks.size < 5 ? 'zadania' : 'zadań'}`
                 }
               </Button>
             </DialogFooter>

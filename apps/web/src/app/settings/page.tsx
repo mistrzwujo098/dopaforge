@@ -48,12 +48,12 @@ export default function SettingsPage() {
     try {
       await updateUserProfile(user.id, { break_reminder: value });
       toast({
-        title: 'Settings updated',
-        description: `Break reminders ${value ? 'enabled' : 'disabled'}`,
+        title: 'Ustawienia zaktualizowane',
+        description: `Przypomnienia o przerwach ${value ? 'włączone' : 'wyłączone'}`,
       });
     } catch (error) {
       toast({
-        title: 'Error updating settings',
+        title: 'Błąd aktualizacji ustawień',
         variant: 'destructive',
       });
     }
@@ -67,7 +67,7 @@ export default function SettingsPage() {
       router.push('/auth');
     } catch (error) {
       toast({
-        title: 'Error signing out',
+        title: 'Błąd wylogowywania',
         variant: 'destructive',
       });
     } finally {
@@ -83,8 +83,8 @@ export default function SettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold mb-2">Settings</h1>
-          <p className="text-muted-foreground">Customize your DopaForge experience</p>
+          <h1 className="text-3xl font-bold mb-2">Ustawienia</h1>
+          <p className="text-muted-foreground">Dostosuj swoje doświadczenie DopaForge</p>
         </motion.div>
 
         <div className="space-y-6">
@@ -95,17 +95,17 @@ export default function SettingsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Appearance</CardTitle>
-                <CardDescription>Customize how DopaForge looks</CardDescription>
+                <CardTitle>Wygląd</CardTitle>
+                <CardDescription>Dostosuj wygląd DopaForge</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="dark-mode" className="text-base">
-                      Dark Mode
+                      Tryb ciemny
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Toggle between light and dark themes
+                      Przełącz między jasnym a ciemnym motywem
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -132,17 +132,17 @@ export default function SettingsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>Manage your notification preferences</CardDescription>
+                <CardTitle>Powiadomienia</CardTitle>
+                <CardDescription>Zarządzaj swoimi preferencjami powiadomień</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="break-reminder" className="text-base">
-                      Break Reminders
+                      Przypomnienia o przerwach
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Get reminded to take a break every 90 minutes
+                      Otrzymuj przypomnienia o przerwach co 90 minut
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -165,8 +165,8 @@ export default function SettingsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Account</CardTitle>
-                <CardDescription>Manage your account settings</CardDescription>
+                <CardTitle>Konto</CardTitle>
+                <CardDescription>Zarządzaj ustawieniami konta</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -183,7 +183,7 @@ export default function SettingsPage() {
                     className="w-full"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    {loading ? 'Signing out...' : 'Sign Out'}
+                    {loading ? 'Wylogowywanie...' : 'Wyloguj się'}
                   </Button>
                 </div>
               </CardContent>
@@ -201,7 +201,7 @@ export default function SettingsPage() {
             onClick={() => router.push('/dashboard')}
             variant="outline"
           >
-            Back to Dashboard
+            Powrót do pulpitu
           </Button>
         </motion.div>
       </div>

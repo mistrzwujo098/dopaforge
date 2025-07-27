@@ -33,7 +33,7 @@ export function TaskCard({ task, onStart, onComplete, isDragging }: TaskCardProp
       <Card className={`relative overflow-hidden ${isCompleted ? 'opacity-60' : ''}`}>
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <div className="cursor-move" aria-label="Drag to reorder">
+            <div className="cursor-move" aria-label="Przeciągnij, aby zmienić kolejność">
               <GripVertical className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             </div>
             <div className="flex-1">
@@ -55,7 +55,7 @@ export function TaskCard({ task, onStart, onComplete, isDragging }: TaskCardProp
                   : 'bg-primary/10 text-primary hover:bg-primary/20'
               }`}
               disabled={isCompleted}
-              aria-label={isCompleted ? 'Task completed' : 'Start task'}
+              aria-label={isCompleted ? 'Zadanie ukończone' : 'Rozpocznij zadanie'}
             >
               {isCompleted ? (
                 <Check className="h-4 w-4" aria-hidden="true" />

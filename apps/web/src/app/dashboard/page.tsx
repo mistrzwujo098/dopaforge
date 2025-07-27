@@ -122,8 +122,8 @@ export default function DashboardPage() {
       }
     } catch (error) {
       toast({
-        title: 'Error loading data',
-        description: 'Please refresh the page',
+        title: 'Błąd ładowania danych',
+        description: 'Odśwież stronę',
         variant: 'destructive',
       });
     } finally {
@@ -176,12 +176,12 @@ export default function DashboardPage() {
       setTasks([...tasks, newTask]);
       setLastActivity(new Date());
       toast({
-        title: 'Task created',
-        description: `"${title}" added to your list`,
+        title: 'Zadanie utworzone',
+        description: `"${title}" dodane do Twojej listy`,
       });
     } catch (error) {
       toast({
-        title: 'Error creating task',
+        title: 'Błąd tworzenia zadania',
         variant: 'destructive',
       });
     }
@@ -212,7 +212,7 @@ export default function DashboardPage() {
       );
     } catch (error) {
       toast({
-        title: 'Error reordering tasks',
+        title: 'Błąd zmiany kolejności zadań',
         variant: 'destructive',
       });
       loadData(); // Reload original order
@@ -229,12 +229,12 @@ export default function DashboardPage() {
     try {
       await createFutureSelf(user.id, visualization, feelings);
       toast({
-        title: 'Intention set',
-        description: 'Your future self visualization has been saved',
+        title: 'Intencja ustalona',
+        description: 'Twoja wizualizacja przyszłego ja została zapisana',
       });
     } catch (error) {
       toast({
-        title: 'Error saving visualization',
+        title: 'Błąd zapisu wizualizacji',
         variant: 'destructive',
       });
     }
@@ -266,12 +266,12 @@ export default function DashboardPage() {
       }
       
       toast({
-        title: 'Review completed',
-        description: 'Thank you for your feedback!',
+        title: 'Przegląd zakończony',
+        description: 'Dziękujemy za Twoją opinię!',
       });
     } catch (error) {
       toast({
-        title: 'Error saving review',
+        title: 'Błąd zapisu przeglądu',
         variant: 'destructive',
       });
     }
@@ -289,12 +289,12 @@ export default function DashboardPage() {
     } catch (error: any) {
       if (error.message === 'Lootbox on cooldown') {
         toast({
-          title: 'Lootbox not available',
-          description: 'Come back tomorrow for your daily reward!',
+          title: 'Lootbox niedostępny',
+          description: 'Wróć jutro po swoją codzienną nagrodę!',
         });
       } else {
         toast({
-          title: 'Error spinning lootbox',
+          title: 'Błąd otwierania lootboxa',
           variant: 'destructive',
         });
       }
@@ -373,12 +373,12 @@ export default function DashboardPage() {
           if (user) {
             await createSelfCompassionSession(user.id, 'Failed commitment contract');
             toast({
-              title: 'Self-compassion practiced',
-              description: 'Remember, failure is part of growth',
+              title: 'Praktykowane samowspółczucie',
+              description: 'Pamiętaj, porażka jest częścią rozwoju',
             });
           }
         }}
-        triggerReason="It's okay that you didn't meet your goal. Let's practice self-kindness."
+        triggerReason="To w porządku, że nie udało Ci się osiągnąć celu. Praktykujmy życzliwość wobec siebie."
       />
 
       <NotificationPermission />
@@ -571,8 +571,8 @@ export default function DashboardPage() {
                 await createImplementationIntention(user!.id, intention);
                 await loadData();
                 toast({
-                  title: 'Script created',
-                  description: 'Your implementation intention has been saved',
+                  title: 'Skrypt utworzony',
+                  description: 'Twoja intencja implementacyjna została zapisana',
                 });
               }}
               onRemove={async (id) => {
@@ -591,8 +591,8 @@ export default function DashboardPage() {
                 await createCommitmentContract(user!.id, contract);
                 await loadData();
                 toast({
-                  title: 'Contract created',
-                  description: 'Your commitment has been sealed',
+                  title: 'Kontrakt utworzony',
+                  description: 'Twoje zobowiązanie zostało zapieczętowane',
                 });
               }}
               onUpdateStatus={async (id, status) => {
@@ -603,8 +603,8 @@ export default function DashboardPage() {
                   setShowSelfCompassion(true);
                 } else {
                   toast({
-                    title: 'Contract completed!',
-                    description: 'Congratulations on keeping your commitment',
+                    title: 'Kontrakt wypełniony!',
+                    description: 'Gratulacje za dotrzymanie zobowiązania',
                   });
                 }
                 
@@ -618,8 +618,8 @@ export default function DashboardPage() {
                 await createPrimingCue(user!.id, cue);
                 await loadData();
                 toast({
-                  title: 'Priming cue created',
-                  description: 'Your environmental cue has been set up',
+                  title: 'Wskażówka primingowa utworzona',
+                  description: 'Twoja wskażówka środowiskowa została ustawiona',
                 });
               }}
               onUpdateCue={async (id, updates) => {
@@ -651,7 +651,7 @@ export default function DashboardPage() {
               onPhysicalAction={(action) => {
                 console.log('Physical action:', action);
                 toast({
-                  title: 'Physical action required',
+                  title: 'Wymagana akcja fizyczna',
                   description: action,
                 });
               }}

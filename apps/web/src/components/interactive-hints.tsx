@@ -134,6 +134,7 @@ export function InteractiveHints() {
   useEffect(() => {
     const handleInteraction = (event: Event, trigger: 'hover' | 'click') => {
       const target = event.target as HTMLElement;
+      if (!target || typeof target.closest !== 'function') return;
       const hintElement = target.closest('[data-hint]');
       
       if (hintElement) {

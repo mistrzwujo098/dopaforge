@@ -29,8 +29,8 @@ export function NotificationPermission() {
   const requestPermission = async () => {
     if (!('Notification' in window)) {
       toast({
-        title: 'Notifications not supported',
-        description: 'Your browser does not support notifications',
+        title: 'Powiadomienia nie są obsługiwane',
+        description: 'Twoja przeglądarka nie obsługuje powiadomień',
         variant: 'destructive',
       });
       return;
@@ -48,22 +48,22 @@ export function NotificationPermission() {
         }
 
         // Test notification
-        new Notification('DopaForge Notifications Enabled!', {
-          body: 'You\'ll receive reminders to stay productive',
+        new Notification('Powiadomienia DopaForge włączone!', {
+          body: 'Będziesz otrzymywać przypomnienia o produktywności',
           icon: '/icon-192.png',
         });
 
         toast({
-          title: 'Notifications enabled',
-          description: 'You\'ll receive timely reminders',
+          title: 'Powiadomienia włączone',
+          description: 'Będziesz otrzymywać przypomnienia na czas',
         });
 
         // Schedule daily check-ins
         scheduleDailyNotifications();
       } else {
         toast({
-          title: 'Notifications blocked',
-          description: 'You can enable them in browser settings',
+          title: 'Powiadomienia zablokowane',
+          description: 'Możesz je włączyć w ustawieniach przeglądarki',
           variant: 'destructive',
         });
       }
@@ -72,8 +72,8 @@ export function NotificationPermission() {
     } catch (error) {
       console.error('Error requesting notification permission:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to enable notifications',
+        title: 'Błąd',
+        description: 'Nie udało się włączyć powiadomień',
         variant: 'destructive',
       });
     }
@@ -92,16 +92,16 @@ export function NotificationPermission() {
     const morningTimeout = morning.getTime() - now.getTime();
     
     setTimeout(() => {
-      new Notification('Good morning! 🌟', {
-        body: 'Ready to tackle today\'s tasks? Start with a quick win!',
+      new Notification('Dzień dobry! 🌟', {
+        body: 'Gotowy na dzisiejsze zadania? Zacznij od szybkiego zwycięstwa!',
         icon: '/icon-192.png',
         tag: 'morning-motivation',
       });
       
       // Reschedule for next day
       setInterval(() => {
-        new Notification('Good morning! 🌟', {
-          body: 'Ready to tackle today\'s tasks? Start with a quick win!',
+        new Notification('Dzień dobry! 🌟', {
+          body: 'Gotowy na dzisiejsze zadania? Zacznij od szybkiego zwycięstwa!',
           icon: '/icon-192.png',
           tag: 'morning-motivation',
         });
@@ -119,16 +119,16 @@ export function NotificationPermission() {
     const afternoonTimeout = afternoon.getTime() - now.getTime();
     
     setTimeout(() => {
-      new Notification('Afternoon check-in 💪', {
-        body: 'How\'s your progress? Time for a quick break or next task!',
+      new Notification('Popołudniowe sprawdzenie 💪', {
+        body: 'Jak Twój postęp? Czas na krótką przerwę lub następne zadanie!',
         icon: '/icon-192.png',
         tag: 'afternoon-checkin',
       });
       
       // Reschedule for next day
       setInterval(() => {
-        new Notification('Afternoon check-in 💪', {
-          body: 'How\'s your progress? Time for a quick break or next task!',
+        new Notification('Popołudniowe sprawdzenie 💪', {
+          body: 'Jak Twój postęp? Czas na krótką przerwę lub następne zadanie!',
           icon: '/icon-192.png',
           tag: 'afternoon-checkin',
         });
@@ -146,7 +146,7 @@ export function NotificationPermission() {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Enable Notifications?</CardTitle>
+            <CardTitle className="text-lg">Włączyć powiadomienia?</CardTitle>
           </div>
           <Button
             variant="ghost"
@@ -160,18 +160,18 @@ export function NotificationPermission() {
       </CardHeader>
       <CardContent>
         <CardDescription className="mb-4">
-          Get timely reminders to stay productive and maintain your streak
+          Otrzymuj przypomnienia na czas, aby pozostać produktywnym i utrzymać serię
         </CardDescription>
         <div className="flex gap-2">
           <Button onClick={requestPermission} size="sm">
-            Enable Notifications
+            Włącz powiadomienia
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowPrompt(false)}
           >
-            Maybe Later
+            Może później
           </Button>
         </div>
       </CardContent>

@@ -25,7 +25,7 @@ function AuthForm() {
     const error = searchParams.get('error');
     if (error) {
       toast({
-        title: 'Authentication Error',
+        title: 'Błąd uwierzytelniania',
         description: decodeURIComponent(error),
         variant: 'destructive',
       });
@@ -149,7 +149,7 @@ function AuthForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Hasło</Label>
               <Input
                 id="password"
                 type="password"

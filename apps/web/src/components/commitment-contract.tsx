@@ -98,13 +98,13 @@ export function CommitmentContract({
   const formatStake = (type: string, details: any) => {
     switch (type) {
       case 'social':
-        return `Social: "${details.message}"`;
+        return `Społeczne: "${details.message}"`;
       case 'donation':
-        return `Donation: $${details.amount}`;
+        return `Darowizna: ${details.amount} zł`;
       case 'habit_lock':
-        return `Locked: ${details.lockedHabit}`;
+        return `Zablokowane: ${details.lockedHabit}`;
       default:
-        return 'Unknown stake';
+        return 'Nieznana stawka';
     }
   };
 
@@ -113,41 +113,41 @@ export function CommitmentContract({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          Commitment Contracts
+          Kontrakty zobowiązań
         </CardTitle>
         <CardDescription>
-          Put skin in the game to boost motivation
+          Postaw coś na szali, aby zwiększyć motywację
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" className="w-full mb-4">
-              Create New Contract
+              Utwórz nowy kontrakt
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[525px]">
             <DialogHeader>
-              <DialogTitle>Create Commitment Contract</DialogTitle>
+              <DialogTitle>Utwórz kontrakt zobowiązania</DialogTitle>
               <DialogDescription>
-                Set a goal and choose what's at stake if you don't complete it
+                Ustal cel i wybierz, co postawisz na szali, jeśli go nie osiągniesz
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="goal">Goal</Label>
+                <Label htmlFor="goal">Cel</Label>
                 <Textarea
                   id="goal"
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
-                  placeholder="What do you commit to achieving?"
+                  placeholder="Do czego się zobowiązujesz?"
                   className="resize-none"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="deadline">Deadline</Label>
+                <Label htmlFor="deadline">Termin</Label>
                 <Input
                   id="deadline"
                   type="date"
@@ -158,27 +158,27 @@ export function CommitmentContract({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="stake">What's at stake?</Label>
+                <Label htmlFor="stake">Co postawisz na szali?</Label>
                 <Select value={stakeType} onValueChange={(v: any) => setStakeType(v)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="social">Social Shame</SelectItem>
-                    <SelectItem value="donation">Charity Donation</SelectItem>
-                    <SelectItem value="habit_lock">Habit Lock</SelectItem>
+                    <SelectItem value="social">Wstyd społeczny</SelectItem>
+                    <SelectItem value="donation">Darowizna na cele charytatywne</SelectItem>
+                    <SelectItem value="habit_lock">Blokada nawyku</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {stakeType === 'social' && (
                 <div className="space-y-2">
-                  <Label htmlFor="message">Public message if you fail</Label>
+                  <Label htmlFor="message">Publiczna wiadomość w razie niepowodzenia</Label>
                   <Textarea
                     id="message"
                     value={stakeDetails.message}
                     onChange={(e) => setStakeDetails({ ...stakeDetails, message: e.target.value })}
-                    placeholder="I failed to... and I'm disappointed in myself"
+                    placeholder="Nie udało mi się... i jestem z siebie rozczarowany"
                     className="resize-none"
                   />
                 </div>
@@ -186,7 +186,7 @@ export function CommitmentContract({
 
               {stakeType === 'donation' && (
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Donation amount ($)</Label>
+                  <Label htmlFor="amount">Kwota darowizny (zł)</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -200,18 +200,18 @@ export function CommitmentContract({
 
               {stakeType === 'habit_lock' && (
                 <div className="space-y-2">
-                  <Label htmlFor="habit">Habit to lock</Label>
+                  <Label htmlFor="habit">Nawyk do zablokowania</Label>
                   <Input
                     id="habit"
                     value={stakeDetails.lockedHabit}
                     onChange={(e) => setStakeDetails({ ...stakeDetails, lockedHabit: e.target.value })}
-                    placeholder="e.g., Netflix, Gaming, Social Media"
+                    placeholder="np. Netflix, Gry, Media społecznościowe"
                   />
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="partner">Accountability Partner (optional)</Label>
+                <Label htmlFor="partner">Partner odpowiedzialności (opcjonalnie)</Label>
                 <Input
                   id="partner"
                   type="email"
@@ -228,7 +228,7 @@ export function CommitmentContract({
                 disabled={!goal || !deadline}
                 variant="gradient"
               >
-                Create Contract
+                Utwórz kontrakt
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -237,7 +237,7 @@ export function CommitmentContract({
         <div className="space-y-3">
           {activeContracts.length === 0 && pastContracts.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-4">
-              No contracts yet. Create one to boost commitment!
+              Brak kontraktów. Utwórz jeden, aby wzmocnić zobowiązanie!
             </p>
           ) : (
             <>
@@ -267,7 +267,7 @@ export function CommitmentContract({
                       <div className="flex items-center gap-2">
                         <Calendar className="h-3 w-3 text-muted-foreground" />
                         <span className={`text-xs ${daysLeft <= 3 ? 'text-red-500' : 'text-muted-foreground'}`}>
-                          {daysLeft} days left
+                          Pozostało {daysLeft} dni
                         </span>
                       </div>
                     </div>
@@ -279,7 +279,7 @@ export function CommitmentContract({
                         onClick={() => onUpdateStatus(contract.id, 'completed')}
                         className="flex-1"
                       >
-                        Complete
+                        Ukończ
                       </Button>
                       <Button
                         size="sm"
@@ -287,7 +287,7 @@ export function CommitmentContract({
                         onClick={() => onUpdateStatus(contract.id, 'failed')}
                         className="text-red-600"
                       >
-                        Failed
+                        Niepowodzenie
                       </Button>
                     </div>
                   </motion.div>
@@ -296,12 +296,12 @@ export function CommitmentContract({
               
               {pastContracts.length > 0 && (
                 <div className="mt-4 pt-4 border-t">
-                  <p className="text-xs text-muted-foreground mb-2">Past contracts</p>
+                  <p className="text-xs text-muted-foreground mb-2">Wcześniejsze kontrakty</p>
                   {pastContracts.slice(0, 3).map((contract) => (
                     <div key={contract.id} className="flex items-center justify-between py-1">
                       <p className="text-xs truncate">{contract.goal}</p>
                       <span className={`text-xs ${contract.status === 'completed' ? 'text-green-600' : 'text-red-600'}`}>
-                        {contract.status}
+                        {contract.status === 'completed' ? 'Ukończony' : contract.status === 'failed' ? 'Nieudany' : contract.status}
                       </span>
                     </div>
                   ))}

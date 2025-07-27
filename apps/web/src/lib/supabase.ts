@@ -1,4 +1,4 @@
 'use client';
 
-// Re-export from the client wrapper
-export { getSupabaseClient } from './supabase-client';
+// Re-export from the browser client (single source of truth)
+export { createSupabaseBrowser as getSupabaseClient } from './supabase-browser';
