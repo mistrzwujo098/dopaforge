@@ -333,7 +333,7 @@ export default function DashboardPage() {
       {/* AI Emotion-Based Interventions */}
       {user && (
         <EmotionInterventions
-          currentTask={tasks.find(t => t.status === 'in_progress') || null}
+          currentTask={tasks.find(t => t.status === 'pending') || null}
           completionRate={tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0}
           totalTasksToday={tasks.length}
           completedTasksToday={completedTasks.length}

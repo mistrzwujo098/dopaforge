@@ -12,4 +12,5 @@ export * from './components/textarea';
 export * from './components/toast';
 export * from './components/badge';
 export * from './components/tabs';
+export * from './components/checkbox';
 export * from './lib/utils';
