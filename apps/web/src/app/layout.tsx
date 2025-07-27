@@ -6,6 +6,7 @@ import '@/styles/globals.css';
 import '@/styles/animations.css';
 import { Toaster } from '@/components/toaster';
 import { ObservabilityProvider } from '@/components/observability-provider';
+import { SupabaseProvider } from '@/components/supabase-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -136,7 +137,9 @@ export default function RootLayout({
           Skip to main content
         </a>
         <ObservabilityProvider>
-          {children}
+          <SupabaseProvider>
+            {children}
+          </SupabaseProvider>
         </ObservabilityProvider>
         <Toaster />
         <script
