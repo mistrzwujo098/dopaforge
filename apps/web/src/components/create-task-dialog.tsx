@@ -81,7 +81,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
       });
       
       setAiTasks(tasks);
-      setSelectedTasks(new Set(tasks.map((_, i) => i)));
+      setSelectedTasks(new Set(tasks.map((_task, i) => i)));
       setShowAIBreakdown(true);
     } catch (error) {
       console.error('AI breakdown error:', error);
