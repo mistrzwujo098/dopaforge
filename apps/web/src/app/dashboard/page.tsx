@@ -82,7 +82,7 @@ export default function DashboardPage() {
   const [primingCues, setPrimingCues] = useState<any[]>([]);
   const [scheduledCues, setScheduledCues] = useState<any[]>([]);
   const [lastActivity, setLastActivity] = useState<Date>(new Date());
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -129,7 +129,14 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (!user) return;
+    // Wait for user loading to complete
+    if (userLoading) return;
+    
+    // If no user, redirect to auth
+    if (!user) {
+      router.push('/auth');
+      return;
+    }
     
     // Sprawdź czy użytkownik przeszedł onboarding
     const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
@@ -139,7 +146,7 @@ export default function DashboardPage() {
     }
     
     loadData();
-  }, [user, router]);
+  }, [user, userLoading, router]);
 
   // Enable real-time sync
   useRealtimeSync({
@@ -292,7 +299,7 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <motion.div
@@ -302,6 +309,11 @@ export default function DashboardPage() {
         />
       </div>
     );
+  }
+  
+  // If no user after loading, show nothing (will redirect)
+  if (!user) {
+    return null;
   }
 
   return (
