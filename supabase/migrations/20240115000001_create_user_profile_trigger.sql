@@ -2,10 +2,9 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.user_profiles (user_id, email, total_xp, current_streak, longest_streak, lootbox_available_at)
+  INSERT INTO public.user_profiles (user_id, total_xp, current_streak, longest_streak, lootbox_available_at)
   VALUES (
     new.id,
-    new.email,
     0,
     0,
     0,
@@ -22,10 +21,9 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Also handle case where user already exists but has no profile
-INSERT INTO public.user_profiles (user_id, email, total_xp, current_streak, longest_streak, lootbox_available_at)
+INSERT INTO public.user_profiles (user_id, total_xp, current_streak, longest_streak, lootbox_available_at)
 SELECT 
   id,
-  email,
   0,
   0,
   0,
