@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 // Prevent static generation during build
 export const dynamic = 'force-dynamic';
 // import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@dopaforge/ui';
 import { useToast } from '@/hooks/useToast';
 
@@ -36,6 +36,8 @@ function AuthForm() {
     setLoading(true);
 
     try {
+      const supabase = getSupabaseClient();
+      
       if (!supabase) {
         throw new Error('Authentication service is not configured. Please check environment variables.');
       }
@@ -46,8 +48,19 @@ function AuthForm() {
         const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          }
         });
         error = signUpError;
+        
+        if (!error) {
+          toast({
+            title: 'Konto utworzone!',
+            description: 'Sprawdź email aby potwierdzić rejestrację.',
+          });
+          return;
+        }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
