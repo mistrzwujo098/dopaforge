@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 // Prevent static generation during build
 export const dynamic = 'force-dynamic';
 // import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@dopaforge/ui';
 import { useToast } from '@/hooks/useToast';
 
@@ -18,7 +18,6 @@ function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   // const router = useRouter();
   const { toast } = useToast();
-  const supabase = createClient;
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -73,14 +72,14 @@ function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 px-4">
+      <Card className="w-full max-w-md mx-4">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Welcome to DopaForge
+            Twój mózg pokocha produktywność
           </CardTitle>
           <CardDescription className="text-center">
-            {isSignUp ? 'Create an account to start building habits' : 'Sign in to your account'}
+            {isSignUp ? 'Zacznij budować nawyki, które dają radość' : 'Wejdź i poczuj dopaminowy zastrzyk'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -116,16 +115,16 @@ function AuthForm() {
               variant={"gradient" as any}
               disabled={loading || !email || !password}
             >
-              {loading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+              {loading ? 'Ładowanie...' : (isSignUp ? 'Zacznij przygodę' : 'Wejdź do gry')}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center">
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-primary hover:underline"
+              className="text-primary hover:underline p-2 min-h-[48px] inline-flex items-center"
             >
-              {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+              {isSignUp ? 'Masz już konto? Zaloguj się' : "Pierwszy raz? Załóż konto"}
             </button>
           </div>
         </CardContent>

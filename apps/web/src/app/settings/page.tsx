@@ -12,7 +12,7 @@ import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/useToast';
 import { useThemeStore } from '@/stores/theme';
 import { getUserProfile, updateUserProfile } from '@dopaforge/db';
-import { createClient } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 import { Moon, Sun, Bell, LogOut } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -22,7 +22,6 @@ export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { darkMode, toggleDarkMode } = useThemeStore();
-  const supabase = createClient;
 
   useEffect(() => {
     if (user) loadSettings();

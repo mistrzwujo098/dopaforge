@@ -1,0 +1,201 @@
+/* Advanced Card Shadows and Depth System */
+
+:root {
+  /* Shadow levels */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Dark mode shadows */
+  --shadow-dark-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-dark-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-dark-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-dark-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-dark-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --shadow-dark-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Elevation classes */
+.elevation-0 {
+  box-shadow: none;
+}
+
+.elevation-1 {
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s ease;
+}
+
+.elevation-2 {
+  box-shadow: var(--shadow-md);
+  transition: box-shadow 0.3s ease;
+}
+
+.elevation-3 {
+  box-shadow: var(--shadow-lg);
+  transition: box-shadow 0.3s ease;
+}
+
+.elevation-4 {
+  box-shadow: var(--shadow-xl);
+  transition: box-shadow 0.3s ease;
+}
+
+.elevation-5 {
+  box-shadow: var(--shadow-2xl);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Dark mode elevations */
+.dark .elevation-1 {
+  box-shadow: var(--shadow-dark-sm);
+}
+
+.dark .elevation-2 {
+  box-shadow: var(--shadow-dark-md);
+}
+
+.dark .elevation-3 {
+  box-shadow: var(--shadow-dark-lg);
+}
+
+.dark .elevation-4 {
+  box-shadow: var(--shadow-dark-xl);
+}
+
+.dark .elevation-5 {
+  box-shadow: var(--shadow-dark-2xl);
+}
+
+/* Card hover effects */
+.card-hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.dark .card-hover-lift:hover {
+  box-shadow: var(--shadow-dark-xl);
+}
+
+/* Multi-layer shadow for depth */
+.shadow-layered {
+  box-shadow: 
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 8px 10px -1px rgba(0, 0, 0, 0.06),
+    0 16px 24px -4px rgba(0, 0, 0, 0.05);
+}
+
+.dark .shadow-layered {
+  box-shadow: 
+    0 2px 4px -1px rgba(0, 0, 0, 0.3),
+    0 4px 6px -1px rgba(0, 0, 0, 0.4),
+    0 8px 10px -1px rgba(0, 0, 0, 0.3),
+    0 16px 24px -4px rgba(0, 0, 0, 0.25);
+}
+
+/* Colored shadows */
+.shadow-primary {
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.2);
+}
+
+.shadow-success {
+  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.2);
+}
+
+.shadow-danger {
+  box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.2);
+}
+
+.shadow-warning {
+  box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.2);
+}
+
+/* Inset shadows for pressed state */
+.shadow-inset {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.dark .shadow-inset {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Neumorphism style (light) */
+.shadow-neumorphic {
+  background: #e0e5ec;
+  box-shadow: 
+    9px 9px 16px #a3b1c6,
+    -9px -9px 16px #ffffff;
+}
+
+.shadow-neumorphic-inset {
+  background: #e0e5ec;
+  box-shadow: 
+    inset 9px 9px 16px #a3b1c6,
+    inset -9px -9px 16px #ffffff;
+}
+
+/* Glassmorphism shadow */
+.shadow-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 32px 0 rgba(31, 38, 135, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.dark .shadow-glass {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.37),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Hierarchy-based shadows */
+.card-primary {
+  box-shadow: var(--shadow-lg);
+  z-index: 3;
+}
+
+.card-secondary {
+  box-shadow: var(--shadow-md);
+  z-index: 2;
+}
+
+.card-tertiary {
+  box-shadow: var(--shadow-sm);
+  z-index: 1;
+}
+
+/* Floating action shadow */
+.shadow-floating {
+  box-shadow: 
+    0 6px 10px -1px rgba(0, 0, 0, 0.2),
+    0 12px 25px -5px rgba(0, 0, 0, 0.12),
+    0 20px 40px -5px rgba(0, 0, 0, 0.08);
+}
+
+/* Active/pressed shadow */
+.active\:shadow-none:active {
+  box-shadow: none;
+  transform: translateY(1px);
+}
+
+/* Focus shadow */
+.focus\:shadow-outline:focus {
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.5),
+    var(--shadow-md);
+}
+
+/* Smooth shadow transitions */
+.shadow-transition {
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

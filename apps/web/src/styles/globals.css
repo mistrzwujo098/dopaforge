@@ -56,11 +56,38 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent horizontal scroll on mobile */
+    overflow-x: hidden;
+    /* Improve text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
-  /* Improved focus styles for accessibility */
+  /* Improved focus styles for accessibility with larger touch target */
   *:focus-visible {
     @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+  
+  /* Ensure minimum tap target size for mobile */
+  button, a, [role="button"], [onclick] {
+    min-height: 48px;
+    min-width: 48px;
+    @apply relative;
+  }
+  
+  /* Small buttons need larger tap areas */
+  button.small-button, a.small-link {
+    @apply relative;
+  }
+  
+  button.small-button::before, a.small-link::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: max(100%, 48px);
+    height: max(100%, 48px);
   }
   
   /* Screen reader only utility */
@@ -87,7 +114,7 @@
     white-space: normal;
   }
   
-  /* Animations */
+  /* Animations with reduced motion support */
   @keyframes slide-up {
     from {
       transform: translateY(100%);
@@ -101,5 +128,41 @@
   
   .animate-slide-up {
     animation: slide-up 0.3s ease-out;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    
+    .animate-slide-up {
+      animation: none;
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* CSS Logical Properties for better RTL support */
+  .container {
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  
+  /* Mobile-first responsive utilities */
+  @media (max-width: 639px) {
+    /* Ensure readable font sizes on mobile */
+    .text-xs {
+      @apply text-sm;
+    }
+    
+    /* Larger touch targets on mobile */
+    .touch-target {
+      @apply min-h-[48px] min-w-[48px];
+    }
   }
 }

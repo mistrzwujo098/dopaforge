@@ -1,0 +1,14 @@
+# DopaForge Robots.txt
+# Allow all crawlers
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/callback
+Disallow: /focus/
+
+# Sitemap location
+Sitemap: https://dopaforge.com/sitemap.xml
+
+# Crawl-delay (in seconds)
+Crawl-delay: 1

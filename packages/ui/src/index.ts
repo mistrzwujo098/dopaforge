@@ -10,4 +10,6 @@ export * from './components/slider';
 export * from './components/switch';
 export * from './components/textarea';
 export * from './components/toast';
+export * from './components/badge';
+export * from './components/tabs';
 export * from './lib/utils';

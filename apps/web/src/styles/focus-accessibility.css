@@ -1,0 +1,158 @@
+/* Focus and Accessibility Styles */
+
+/* Remove default outline and add custom focus styles */
+*:focus {
+  outline: none;
+}
+
+/* Focus visible - only show focus ring when using keyboard */
+*:focus-visible {
+  outline: 2px solid rgb(var(--ring));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Custom focus styles for different elements */
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgb(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(var(--ring), 0.1);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(var(--ring));
+  outline-offset: 0;
+  border-color: rgb(var(--ring));
+  box-shadow: 0 0 0 3px rgba(var(--ring), 0.1);
+}
+
+/* Card focus */
+.card:focus-visible {
+  outline: 3px solid rgb(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(var(--ring), 0.1);
+}
+
+/* Skip links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
+  padding: 8px 16px;
+  z-index: 100;
+  text-decoration: none;
+  border-radius: 0 0 8px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Focus trap indicator */
+.focus-trap-active {
+  position: relative;
+}
+
+.focus-trap-active::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px dashed rgba(var(--ring), 0.5);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Keyboard navigation hints */
+.kbd-nav-hint {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+*:focus-visible .kbd-nav-hint {
+  opacity: 1;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  *:focus-visible {
+    outline-width: 3px;
+    outline-style: solid;
+  }
+  
+  button:focus-visible {
+    outline-offset: 4px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus within for form groups */
+.form-group:focus-within {
+  background: rgba(var(--ring), 0.02);
+  border-radius: 8px;
+  padding: 4px;
+  margin: -4px;
+}
+
+/* Tab order indicators (for debugging) */
+.debug-tab-order [tabindex]:not([tabindex="-1"])::after {
+  content: attr(tabindex);
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: red;
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+/* ARIA live regions */
+[aria-live="polite"] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+[aria-live="assertive"] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Focus lock overlay */
+.focus-lock-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}

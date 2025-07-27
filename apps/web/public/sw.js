@@ -1,11 +1,14 @@
 // Service Worker for PWA notifications and offline support
 
-const CACHE_NAME = 'dopaforge-v1';
+const CACHE_NAME = 'dopaforge-v2';
 const urlsToCache = [
   '/',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
+  '/sounds/notification.mp3',
+  '/sounds/complete.mp3',
+  '/sounds/start.mp3',
 ];
 
 // Install event - cache resources

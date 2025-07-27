@@ -1,4 +1,5 @@
 // path: apps/web/src/components/__tests__/task-card.test.tsx
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TaskCard } from '../task-card';
 
@@ -19,8 +20,8 @@ describe('TaskCard', () => {
     render(
       <TaskCard
         task={mockTask}
-        onStart={jest.fn()}
-        onComplete={jest.fn()}
+        onStart={vi.fn()}
+        onComplete={vi.fn()}
       />
     );
 
@@ -29,12 +30,12 @@ describe('TaskCard', () => {
   });
 
   it('calls onStart when play button is clicked', () => {
-    const onStart = jest.fn();
+    const onStart = vi.fn();
     render(
       <TaskCard
         task={mockTask}
         onStart={onStart}
-        onComplete={jest.fn()}
+        onComplete={vi.fn()}
       />
     );
 
@@ -49,8 +50,8 @@ describe('TaskCard', () => {
     render(
       <TaskCard
         task={completedTask}
-        onStart={jest.fn()}
-        onComplete={jest.fn()}
+        onStart={vi.fn()}
+        onComplete={vi.fn()}
       />
     );
 

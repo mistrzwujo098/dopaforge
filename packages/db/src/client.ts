@@ -36,5 +36,12 @@ export const supabase = supabaseUrl && supabaseAnonKey
         persistSession: true,
         autoRefreshToken: true,
       },
+      global: {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey,
+        },
+      },
     })
   : createMockClient() as any;

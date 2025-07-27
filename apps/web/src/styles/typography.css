@@ -1,0 +1,230 @@
+/* Typography Rhythm and Scale System */
+
+:root {
+  /* Type Scale - Major Third (1.25) */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.25rem;     /* 20px */
+  --text-xl: 1.563rem;    /* 25px */
+  --text-2xl: 1.953rem;   /* 31px */
+  --text-3xl: 2.441rem;   /* 39px */
+  --text-4xl: 3.052rem;   /* 49px */
+  --text-5xl: 3.815rem;   /* 61px */
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Letter Spacing */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* Font Weights */
+  --font-thin: 100;
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+  --font-black: 900;
+
+  /* Vertical Rhythm Base */
+  --rhythm-base: 1.5rem; /* 24px */
+}
+
+/* Base Typography */
+body {
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-normal);
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings with Rhythm */
+h1, .h1 {
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--font-bold);
+  margin-bottom: calc(var(--rhythm-base) * 1.5);
+  margin-top: calc(var(--rhythm-base) * 2);
+}
+
+h2, .h2 {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--font-semibold);
+  margin-bottom: calc(var(--rhythm-base) * 1);
+  margin-top: calc(var(--rhythm-base) * 1.5);
+}
+
+h3, .h3 {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-snug);
+  font-weight: var(--font-semibold);
+  margin-bottom: calc(var(--rhythm-base) * 0.75);
+  margin-top: calc(var(--rhythm-base) * 1);
+}
+
+h4, .h4 {
+  font-size: var(--text-xl);
+  line-height: var(--leading-snug);
+  font-weight: var(--font-medium);
+  margin-bottom: calc(var(--rhythm-base) * 0.5);
+  margin-top: calc(var(--rhythm-base) * 0.75);
+}
+
+h5, .h5 {
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
+  font-weight: var(--font-medium);
+  margin-bottom: calc(var(--rhythm-base) * 0.5);
+  margin-top: calc(var(--rhythm-base) * 0.5);
+}
+
+h6, .h6 {
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: calc(var(--rhythm-base) * 0.5);
+  margin-top: calc(var(--rhythm-base) * 0.5);
+}
+
+/* Body Text */
+p {
+  margin-bottom: var(--rhythm-base);
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* Lead Text */
+.lead {
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  font-weight: var(--font-light);
+}
+
+/* Small Text */
+.text-sm {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.text-xs {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+
+/* Lists with Rhythm */
+ul, ol {
+  margin-bottom: var(--rhythm-base);
+  padding-left: var(--rhythm-base);
+}
+
+li {
+  margin-bottom: calc(var(--rhythm-base) * 0.25);
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  :root {
+    --text-4xl: 2.441rem;   /* Scale down on mobile */
+    --text-3xl: 1.953rem;
+    --text-2xl: 1.563rem;
+  }
+}
+
+/* Variable Font Support */
+@supports (font-variation-settings: normal) {
+  body {
+    font-family: 'Inter var', system-ui, -apple-system, sans-serif;
+    font-variation-settings: 'wght' var(--font-normal);
+  }
+  
+  strong, b {
+    font-variation-settings: 'wght' var(--font-bold);
+  }
+  
+  h1, h2, h3 {
+    font-variation-settings: 'wght' var(--font-semibold);
+  }
+}
+
+/* Font Weight Animation */
+.font-weight-animate {
+  transition: font-variation-settings 0.3s ease;
+}
+
+.font-weight-animate:hover {
+  font-variation-settings: 'wght' var(--font-bold);
+}
+
+/* Baseline Grid Helper (for development) */
+.baseline-grid {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(var(--rhythm-base) - 1px),
+    rgba(255, 0, 0, 0.1) calc(var(--rhythm-base) - 1px),
+    rgba(255, 0, 0, 0.1) var(--rhythm-base)
+  );
+}
+
+/* Utility Classes */
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Polish Typography Features */
+.text-pl {
+  font-feature-settings: 'kern' 1, 'liga' 1, 'locl' 1;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+}
+
+/* Tabular Numbers for Data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

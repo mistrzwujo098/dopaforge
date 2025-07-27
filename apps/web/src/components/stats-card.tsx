@@ -20,13 +20,13 @@ export function StatsCard({ title, value, icon: Icon, color = 'primary', delay =
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
     >
-      <Card>
+      <Card className="h-full">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          <Icon className={`h-4 w-4 text-${color}`} />
+          <CardTitle className="text-xs sm:text-sm font-medium">{title}</CardTitle>
+          <Icon className="h-4 w-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{value}</div>
+          <div className="text-lg sm:text-2xl font-bold">{value}</div>
         </CardContent>
       </Card>
     </motion.div>

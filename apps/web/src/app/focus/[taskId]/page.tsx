@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/useToast';
 import { updateTask, completeTask, checkAndGrantBadges, createOpenLoop, type Database } from '@dopaforge/db';
 import { supabase } from '@dopaforge/db';
 import { Play, Pause, RotateCcw, CheckCircle } from 'lucide-react';
-import Confetti from 'react-confetti';
+import { DynamicConfetti } from '@/components/dynamic-imports';
 import useSound from 'use-sound';
 
 type Task = Database['public']['Tables']['micro_tasks']['Row'];
@@ -242,7 +242,7 @@ export default function FocusPage({ params }: { params: { taskId: string } }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-6">
       {showConfetti && (
-        <Confetti
+        <DynamicConfetti
           width={windowSize.width}
           height={windowSize.height}
           recycle={false}

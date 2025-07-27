@@ -4,7 +4,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DragDropContext, Droppable, Draggable, DragDropWrapper } from '@/components/drag-drop-wrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@dopaforge/ui';
 
 // Prevent static generation during build
@@ -16,7 +15,7 @@ import { ProgressBar } from '@/components/progress-bar';
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/useToast';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
-import { createClient } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 import {
   getTodayTasks,
   createTask,
@@ -44,17 +43,28 @@ import {
   type Database,
 } from '@dopaforge/db';
 import { Trophy, Zap, Target, Calendar } from 'lucide-react';
-import Confetti from 'react-confetti';
-import { FutureSelfModal } from '@/components/future-self-modal';
-import { WeeklyReviewModal } from '@/components/weekly-review-modal';
-import { Lootbox } from '@/components/lootbox';
-import { ImplementationIntentions } from '@/components/implementation-intentions';
-import { CommitmentContract } from '@/components/commitment-contract';
-import { SelfCompassionModal } from '@/components/self-compassion-modal';
-import { EnvironmentalPriming } from '@/components/environmental-priming';
-import { CueScheduler } from '@/components/cue-scheduler';
+import {
+  DynamicConfetti,
+  DynamicDragDropWrapper,
+  DynamicDragDropContext,
+  DynamicDroppable,
+  DynamicDraggable,
+  DynamicFutureSelfModal,
+  DynamicWeeklyReviewModal,
+  DynamicSelfCompassionModal,
+  DynamicImplementationIntentions,
+  DynamicCommitmentContract,
+  DynamicEnvironmentalPriming,
+  DynamicCueScheduler,
+  DynamicLootbox,
+} from '@/components/dynamic-imports';
 import { NotificationPermission } from '@/components/notification-permission';
 import { observability } from '@/lib/observability';
+import { BehavioralInterventions } from '@/components/behavioral-interventions';
+import { PreemptiveStrike } from '@/components/preemptive-strike';
+import { SocialAccountability } from '@/components/social-accountability';
+import { PhysicalIntegration } from '@/components/physical-integration';
+import { InteractiveHints } from '@/components/interactive-hints';
 
 type Task = Database['public']['Tables']['micro_tasks']['Row'];
 type UserProfile = Database['public']['Tables']['user_profiles']['Row'];
@@ -71,10 +81,10 @@ export default function DashboardPage() {
   const [contracts, setContracts] = useState<any[]>([]);
   const [primingCues, setPrimingCues] = useState<any[]>([]);
   const [scheduledCues, setScheduledCues] = useState<any[]>([]);
+  const [lastActivity, setLastActivity] = useState<Date>(new Date());
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const supabase = createClient;
 
   const loadData = async () => {
     if (!user) return;
@@ -120,8 +130,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return;
+    
+    // Sprawdź czy użytkownik przeszedł onboarding
+    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
+    if (!hasCompletedOnboarding) {
+      router.push('/onboarding');
+      return;
+    }
+    
     loadData();
-  }, [user]);
+  }, [user, router]);
 
   // Enable real-time sync
   useRealtimeSync({
@@ -146,6 +164,7 @@ export default function DashboardPage() {
       observability.trackUserAction('task_created', { estMinutes });
 
       setTasks([...tasks, newTask]);
+      setLastActivity(new Date());
       toast({
         title: 'Task created',
         description: `"${title}" added to your list`,
@@ -287,8 +306,17 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+      {/* Behavioral Interventions System */}
+      {user && (
+        <BehavioralInterventions
+          userId={user.id}
+          currentTasks={tasks}
+          lastActivity={lastActivity}
+        />
+      )}
+      
       {showConfetti && (
-        <Confetti
+        <DynamicConfetti
           recycle={false}
           numberOfPieces={200}
           gravity={0.2}
@@ -296,13 +324,13 @@ export default function DashboardPage() {
         />
       )}
 
-      <FutureSelfModal
+      <DynamicFutureSelfModal
         open={showFutureSelf}
         onClose={() => setShowFutureSelf(false)}
         onSubmit={handleFutureSelfSubmit}
       />
 
-      <WeeklyReviewModal
+      <DynamicWeeklyReviewModal
         open={showWeeklyReview}
         onClose={() => setShowWeeklyReview(false)}
         onSubmit={handleWeeklyReviewSubmit}
@@ -313,7 +341,7 @@ export default function DashboardPage() {
         }}
       />
 
-      <SelfCompassionModal
+      <DynamicSelfCompassionModal
         open={showSelfCompassion}
         onClose={() => setShowSelfCompassion(false)}
         onComplete={async () => {
@@ -329,38 +357,48 @@ export default function DashboardPage() {
       />
 
       <NotificationPermission />
+      
+      {/* Advanced Anti-Procrastination Systems */}
+      <InteractiveHints />
+      <PreemptiveStrike 
+        userId={user?.id || ''} 
+        onActionRequired={(action) => {
+          console.log('Action required:', action);
+          // Handle different actions
+        }}
+      />
 
-      <main id="main-content" className="container mx-auto p-6 max-w-7xl">
+      <main id="main-content" className="container mx-auto px-4 py-6 sm:p-6 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <h1 className="text-3xl font-bold mb-2">Welcome back! 👋</h1>
-          <p className="text-muted-foreground">Let's make today productive</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Czas na dopaminę! 🎯</h1>
+          <p className="text-muted-foreground">Każde zadanie to kolejny poziom do przejścia</p>
         </motion.div>
 
-        <div className="grid gap-6 md:grid-cols-4 mb-8">
+        <div className="grid gap-4 grid-cols-2 sm:gap-6 md:grid-cols-4 mb-6 sm:mb-8">
           <StatsCard
-            title="Today's XP"
+            title="Dzisiejsze XP"
             value={totalXP}
             icon={Zap}
             delay={0.1}
           />
           <StatsCard
-            title="Total XP"
+            title="Całkowite XP"
             value={profile?.total_xp || 0}
             icon={Trophy}
             delay={0.2}
           />
           <StatsCard
-            title="Current Streak"
-            value={`${profile?.current_streak || 0} days`}
+            title="Seria dni"
+            value={`${profile?.current_streak || 0} dni`}
             icon={Calendar}
             delay={0.3}
           />
           <StatsCard
-            title="Tasks Today"
+            title="Zadania dziś"
             value={`${completedTasks.length}/${tasks.length}`}
             icon={Target}
             delay={0.4}
@@ -369,28 +407,28 @@ export default function DashboardPage() {
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Daily Progress</CardTitle>
+            <CardTitle>Postęp dnia</CardTitle>
           </CardHeader>
           <CardContent>
             <ProgressBar
               value={completedTasks.length}
               max={Math.max(tasks.length, 1)}
-              label="Tasks Completed"
+              label="Ukończone zadania"
             />
           </CardContent>
         </Card>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 order-2 lg:order-1">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Today's Micro Tasks</CardTitle>
+                <CardTitle>Mikro-zadania na dziś</CardTitle>
                 <CreateTaskDialog onCreateTask={handleCreateTask} />
               </CardHeader>
               <CardContent>
-                <DragDropWrapper>
-                  <DragDropContext onDragEnd={handleDragEnd}>
-                    <Droppable droppableId="tasks">
+                <DynamicDragDropWrapper>
+                  <DynamicDragDropContext onDragEnd={handleDragEnd}>
+                    <DynamicDroppable droppableId="tasks">
                     {(provided, snapshot) => (
                       <div
                         {...provided.droppableProps}
@@ -404,12 +442,12 @@ export default function DashboardPage() {
                               animate={{ opacity: 1 }}
                               className="text-center py-12 text-muted-foreground"
                             >
-                              <p className="mb-4">No tasks yet. Create your first micro task!</p>
+                              <p className="mb-4">Brak zadań. Stwórz pierwsze mikro-zadanie!</p>
                             </motion.div>
                           ) : (
                             <>
                               {pendingTasks.map((task, index) => (
-                                <Draggable key={task.id} draggableId={task.id} index={index}>
+                                <DynamicDraggable key={task.id} draggableId={task.id} index={index}>
                                   {(provided, snapshot) => (
                                     <div
                                       ref={provided.innerRef}
@@ -424,7 +462,7 @@ export default function DashboardPage() {
                                       />
                                     </div>
                                   )}
-                                </Draggable>
+                                </DynamicDraggable>
                               ))}
                               {completedTasks.map((task) => (
                                 <TaskCard
@@ -440,26 +478,26 @@ export default function DashboardPage() {
                         {provided.placeholder}
                       </div>
                     )}
-                  </Droppable>
-                </DragDropContext>
-                </DragDropWrapper>
+                  </DynamicDroppable>
+                </DynamicDragDropContext>
+                </DynamicDragDropWrapper>
               </CardContent>
             </Card>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
             <Card>
               <CardHeader>
-                <CardTitle>Small Wins 🎯</CardTitle>
+                <CardTitle>Małe zwycięstwa 🎯</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Tasks completed</span>
+                    <span className="text-sm text-muted-foreground">Ukończone zadania</span>
                     <span className="text-2xl font-bold">{completedTasks.length}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Minutes focused</span>
+                    <span className="text-sm text-muted-foreground">Minuty skupienia</span>
                     <span className="text-2xl font-bold">{totalXP}</span>
                   </div>
                 </div>
@@ -468,28 +506,28 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Next Milestone</CardTitle>
+                <CardTitle>Następny kamień milowy</CardTitle>
               </CardHeader>
               <CardContent>
                 <ProgressBar
                   value={profile?.total_xp || 0}
                   max={profile?.total_xp || 0 < 500 ? 500 : 2000}
-                  label="XP Progress"
+                  label="Postęp XP"
                 />
                 <p className="text-sm text-muted-foreground mt-2">
                   {profile?.total_xp || 0 < 500
-                    ? `${500 - (profile?.total_xp || 0)} XP to Momentum badge`
-                    : `${2000 - (profile?.total_xp || 0)} XP to Flow Master badge`}
+                    ? `${500 - (profile?.total_xp || 0)} XP do odznaki Momentum`
+                    : `${2000 - (profile?.total_xp || 0)} XP do odznaki Mistrz Flow`}
                 </p>
               </CardContent>
             </Card>
 
-            <Lootbox
+            <DynamicLootbox
               onOpen={handleLootboxSpin}
               lastOpenedAt={profile?.lootbox_available_at ? new Date(profile.lootbox_available_at) : null}
             />
 
-            <ImplementationIntentions
+            <DynamicImplementationIntentions
               intentions={intentions}
               onAdd={async (intention) => {
                 await createImplementationIntention(user!.id, intention);
@@ -509,7 +547,7 @@ export default function DashboardPage() {
               }}
             />
 
-            <CommitmentContract
+            <DynamicCommitmentContract
               contracts={contracts}
               onCreateContract={async (contract) => {
                 await createCommitmentContract(user!.id, contract);
@@ -536,7 +574,7 @@ export default function DashboardPage() {
               }}
             />
 
-            <EnvironmentalPriming
+            <DynamicEnvironmentalPriming
               cues={primingCues}
               onCreateCue={async (cue) => {
                 await createPrimingCue(user!.id, cue);
@@ -556,10 +594,29 @@ export default function DashboardPage() {
               }}
             />
 
-            <CueScheduler
+            <DynamicCueScheduler
               cues={scheduledCues}
               onUpdate={loadData}
               userId={user!.id}
+            />
+            
+            {/* Social Accountability System */}
+            <SocialAccountability
+              userId={user!.id}
+              currentStreak={profile?.current_streak || 0}
+              tasksToday={completedTasks.length}
+            />
+            
+            {/* Physical World Integration */}
+            <PhysicalIntegration
+              userId={user!.id}
+              onPhysicalAction={(action) => {
+                console.log('Physical action:', action);
+                toast({
+                  title: 'Physical action required',
+                  description: action,
+                });
+              }}
             />
           </div>
         </div>
