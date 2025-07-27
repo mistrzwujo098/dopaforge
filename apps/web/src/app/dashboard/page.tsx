@@ -223,8 +223,8 @@ export default function DashboardPage() {
     }
   };
 
-  const completedTasks = tasks.filter((t) => t.status === 'completed');
-  const pendingTasks = tasks.filter((t) => t.status === 'pending');
+  const completedTasks = tasks.filter((t) => t && t.status === 'completed');
+  const pendingTasks = tasks.filter((t) => t && t.status === 'pending');
   const totalXP = completedTasks.reduce((sum, task) => sum + task.est_minutes, 0);
 
   const handleFutureSelfSubmit = async (visualization: string, feelings: string[]) => {
@@ -337,7 +337,7 @@ export default function DashboardPage() {
       {/* AI Emotion-Based Interventions */}
       {user && (
         <DynamicEmotionInterventions
-          currentTask={tasks.find(t => t.status === 'pending') || null}
+          currentTask={tasks.find(t => t && t.status === 'pending') || null}
           completionRate={tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0}
           totalTasksToday={tasks.length}
           completedTasksToday={completedTasks.length}

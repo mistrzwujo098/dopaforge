@@ -53,7 +53,7 @@ export function TaskPriorityAdvisor({ tasks, onTaskSelect }: TaskPriorityAdvisor
   const { toast } = useToast();
 
   // Filter only pending/available tasks
-  const availableTasks = tasks.filter(t => t.status === 'pending' || t.status === 'available');
+  const availableTasks = tasks.filter(t => t && (t.status === 'pending' || t.status === 'available'));
 
   const getAdvice = async () => {
     if (availableTasks.length === 0) {

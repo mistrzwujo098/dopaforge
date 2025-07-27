@@ -109,7 +109,7 @@ export function BehavioralInterventions({ userId, currentTasks, lastActivity }: 
       }
 
       // Za dużo niezakończonych = paraliż
-      const pendingTasks = currentTasks.filter(t => t.status === 'pending');
+      const pendingTasks = currentTasks.filter(t => t && t.status === 'pending');
       if (pendingTasks.length > 5) {
         setIntervention({
           type: 'overwhelm',

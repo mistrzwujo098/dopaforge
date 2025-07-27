@@ -23,7 +23,7 @@ export function ComboCounter({ tasks, onComboBonus }: ComboCounterProps) {
   useEffect(() => {
     // Calculate current combo based on recent task completions
     const recentCompletions = tasks
-      .filter(t => t.status === 'completed' && t.completed_at)
+      .filter(t => t && t.status === 'completed' && t.completed_at)
       .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
 
     if (recentCompletions.length === 0) {
