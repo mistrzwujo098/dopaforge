@@ -60,15 +60,21 @@ export function createSupabaseBrowser() {
     throw new Error('Invalid Supabase URL format. It should be https://[project-ref].supabase.co');
   }
 
+  // Clean up URL and key (remove whitespace and newlines)
+  const cleanUrl = url.trim();
+  const cleanKey = key.replace(/\s+/g, ''); // Remove ALL whitespace including newlines
+
   // Validate key format
-  if (!key.startsWith('eyJ')) {
+  if (!cleanKey.startsWith('eyJ')) {
     console.error('Invalid Supabase anon key format');
     throw new Error('Invalid Supabase anon key format');
   }
 
   try {
-    console.log('Creating Supabase client with URL:', url.substring(0, 30) + '...');
-    browserClient = createBrowserClient<Database>(url, key);
+    console.log('Creating Supabase client with URL:', cleanUrl.substring(0, 30) + '...');
+    console.log('Key length after cleanup:', cleanKey.length);
+    
+    browserClient = createBrowserClient<Database>(cleanUrl, cleanKey);
     console.log('Supabase client created successfully');
     return browserClient;
   } catch (error) {

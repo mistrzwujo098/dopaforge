@@ -33,7 +33,11 @@ export function getSupabaseClient() {
     } as any;
   }
 
-  supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  // Clean up URL and key (remove whitespace and newlines)
+  const cleanUrl = supabaseUrl.trim();
+  const cleanKey = supabaseAnonKey.replace(/\s+/g, '');
+
+  supabaseInstance = createClient<Database>(cleanUrl, cleanKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
