@@ -15,6 +15,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     return (
       <div
         ref={ref}
+        role="progressbar"
         className={cn(
           'relative h-4 w-full overflow-hidden rounded-full bg-secondary',
           className

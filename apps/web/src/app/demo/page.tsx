@@ -33,7 +33,7 @@ export default function DemoPage() {
     {
       key: 'h',
       ctrlKey: true,
-      action: () => console.log('Help'),
+      action: () => {}, // TODO: Implement help action
       description: 'Pokaż pomoc'
     }
   ]);
@@ -271,7 +271,9 @@ export default function DemoPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ComboCounter 
               tasks={completedTasks}
-              onComboBonus={(multiplier) => console.log('Combo bonus:', multiplier)}
+              onComboBonus={(multiplier) => {
+                // TODO: Apply combo bonus multiplier
+              }}
             />
             <DailyLoginRewards userId="demo-user" />
           </div>
@@ -285,7 +287,7 @@ export default function DemoPage() {
               bossesDefeated: 3
             }}
             onAchievementUnlocked={(achievement) => {
-              console.log('Achievement unlocked:', achievement.name);
+              // Achievement unlocked
               SoundSystem.getInstance().play('achievement');
             }}
           />

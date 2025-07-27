@@ -64,3 +64,47 @@ export const DynamicCueScheduler = dynamic(() => import('@/components/cue-schedu
 export const DynamicLootbox = dynamic(() => import('@/components/lootbox').then(mod => ({ default: mod.Lootbox })), {
   ssr: false,
 });
+
+// AI Features - load when needed
+export const DynamicProgressStory = dynamic(() => import('@/components/features/ProgressStory').then(mod => ({ default: mod.ProgressStory })), {
+  ssr: false,
+});
+
+export const DynamicEmotionInterventions = dynamic(() => import('@/components/features/EmotionInterventions').then(mod => ({ default: mod.EmotionInterventions })), {
+  ssr: false,
+});
+
+export const DynamicTaskPriorityAdvisor = dynamic(() => import('@/components/features/TaskPriorityAdvisor').then(mod => ({ default: mod.TaskPriorityAdvisor })), {
+  ssr: false,
+});
+
+// Behavioral Interventions
+export const DynamicBehavioralInterventions = dynamic(() => import('@/components/behavioral-interventions').then(mod => ({ default: mod.BehavioralInterventions })), {
+  ssr: false,
+});
+
+export const DynamicPreemptiveStrike = dynamic(() => import('@/components/preemptive-strike').then(mod => ({ default: mod.PreemptiveStrike })), {
+  ssr: false,
+});
+
+export const DynamicSocialAccountability = dynamic(() => import('@/components/social-accountability').then(mod => ({ default: mod.SocialAccountability })), {
+  ssr: false,
+});
+
+export const DynamicPhysicalIntegration = dynamic(() => import('@/components/physical-integration').then(mod => ({ default: mod.PhysicalIntegration })), {
+  ssr: false,
+});
+
+export const DynamicInteractiveHints = dynamic(() => import('@/components/interactive-hints').then(mod => ({ default: mod.InteractiveHints })), {
+  ssr: false,
+});
+
+// FAQ Section for homepage
+export const DynamicFAQSection = dynamic(() => import('@/components/faq-section').then(mod => ({ default: mod.FAQSection })), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse">
+      <div className="h-48 bg-gray-200 rounded mb-4"></div>
+    </div>
+  ),
+});

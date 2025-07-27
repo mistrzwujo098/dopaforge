@@ -138,19 +138,19 @@ export function DailyLoginRewards({ userId }: { userId: string }) {
     switch (reward.type) {
       case 'xp':
         // Add XP to user profile
-        console.log(`Added ${reward.amount} XP`);
+        // TODO: Add XP to user profile
         break;
       case 'powerup':
         // Add power-up to inventory
-        console.log(`Added ${reward.name}`);
+        // TODO: Add power-up to inventory
         break;
       case 'streak_freeze':
         // Add streak freeze
-        console.log('Added streak freeze');
+        // TODO: Add streak freeze
         break;
       case 'bonus':
         // Special bonus
-        console.log(`Mega bonus: ${reward.amount} XP!`);
+        // TODO: Apply mega bonus
         break;
     }
   };

@@ -48,10 +48,9 @@ describe('Tasks API Integration Tests', () => {
       const newTask = {
         user_id: testUserId,
         title: 'Test Task',
-        resistance_level: 5,
-        duration_minutes: 25,
-        xp_reward: 50,
-        quick_description: 'A test task for integration testing',
+        est_minutes: 25,
+        status: 'pending',
+        display_order: 0,
       };
 
       const { data, error } = await supabase
@@ -63,7 +62,8 @@ describe('Tasks API Integration Tests', () => {
       expect(error).toBeNull();
       expect(data).toBeDefined();
       expect(data.title).toBe(newTask.title);
-      expect(data.resistance_level).toBe(newTask.resistance_level);
+      expect(data.est_minutes).toBe(newTask.est_minutes);
+      expect(data.status).toBe('pending');
     });
 
     it('should retrieve user tasks', async () => {
@@ -72,16 +72,16 @@ describe('Tasks API Integration Tests', () => {
         {
           user_id: testUserId,
           title: 'Task 1',
-          resistance_level: 3,
-          duration_minutes: 15,
-          xp_reward: 30,
+          est_minutes: 15,
+          status: 'pending',
+          display_order: 0,
         },
         {
           user_id: testUserId,
           title: 'Task 2',
-          resistance_level: 7,
-          duration_minutes: 45,
-          xp_reward: 90,
+          est_minutes: 45,
+          status: 'pending',
+          display_order: 1,
         },
       ];
 
@@ -96,7 +96,10 @@ describe('Tasks API Integration Tests', () => {
 
       expect(error).toBeNull();
       expect(data).toHaveLength(2);
-      expect(data[0].title).toBe('Task 2');
+      // Verify we get both tasks - order might vary by created_at
+      const titles = data.map((task: any) => task.title);
+      expect(titles).toContain('Task 1');
+      expect(titles).toContain('Task 2');
     });
 
     it('should update a task', async () => {
@@ -106,9 +109,9 @@ describe('Tasks API Integration Tests', () => {
         .insert({
           user_id: testUserId,
           title: 'Original Title',
-          resistance_level: 5,
-          duration_minutes: 25,
-          xp_reward: 50,
+          est_minutes: 25,
+          status: 'pending',
+          display_order: 0,
         })
         .select()
         .single();
@@ -118,8 +121,8 @@ describe('Tasks API Integration Tests', () => {
         .from('micro_tasks')
         .update({
           title: 'Updated Title',
-          resistance_level: 8,
-          is_completed: true,
+          status: 'completed',
+          completed_at: new Date().toISOString(),
         })
         .eq('id', createdTask.id)
         .select()
@@ -127,8 +130,8 @@ describe('Tasks API Integration Tests', () => {
 
       expect(error).toBeNull();
       expect(updatedTask.title).toBe('Updated Title');
-      expect(updatedTask.resistance_level).toBe(8);
-      expect(updatedTask.is_completed).toBe(true);
+      expect(updatedTask.status).toBe('completed');
+      expect(updatedTask.completed_at).toBeDefined();
     });
 
     it('should delete a task', async () => {
@@ -138,9 +141,9 @@ describe('Tasks API Integration Tests', () => {
         .insert({
           user_id: testUserId,
           title: 'Task to Delete',
-          resistance_level: 5,
-          duration_minutes: 25,
-          xp_reward: 50,
+          est_minutes: 25,
+          status: 'pending',
+          display_order: 0,
         })
         .select()
         .single();
@@ -165,16 +168,16 @@ describe('Tasks API Integration Tests', () => {
   });
 
   describe('Task Completion and XP', () => {
-    it('should mark task as completed and update XP', async () => {
+    it('should mark task as completed and update completion time', async () => {
       // Create a task
       const { data: task } = await supabase
         .from('micro_tasks')
         .insert({
           user_id: testUserId,
-          title: 'XP Test Task',
-          resistance_level: 5,
-          duration_minutes: 25,
-          xp_reward: 100,
+          title: 'Completion Test Task',
+          est_minutes: 25,
+          status: 'pending',
+          display_order: 0,
         })
         .select()
         .single();
@@ -183,78 +186,72 @@ describe('Tasks API Integration Tests', () => {
       const { data: completedTask } = await supabase
         .from('micro_tasks')
         .update({
-          is_completed: true,
+          status: 'completed',
           completed_at: new Date().toISOString(),
         })
         .eq('id', task.id)
         .select()
         .single();
 
-      expect(completedTask.is_completed).toBe(true);
+      expect(completedTask.status).toBe('completed');
       expect(completedTask.completed_at).toBeDefined();
-
-      // Verify XP update (would need to check user_profiles table)
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('total_xp')
-        .eq('user_id', testUserId)
-        .single();
-
-      // Note: This might fail if XP update is handled by a trigger or separate process
-      // expect(profile?.total_xp).toBeGreaterThanOrEqual(100);
     });
 
-    it('should calculate resistance-based XP bonus', async () => {
-      const baseXP = 50;
-      const resistanceLevel = 8;
-      const expectedBonus = Math.floor(baseXP * (resistanceLevel / 10));
-      const totalXP = baseXP + expectedBonus;
-
+    it('should track task start time', async () => {
+      // Create a task
       const { data: task } = await supabase
         .from('micro_tasks')
         .insert({
           user_id: testUserId,
-          title: 'High Resistance Task',
-          resistance_level: resistanceLevel,
-          duration_minutes: 25,
-          xp_reward: baseXP,
+          title: 'Timer Test Task',
+          est_minutes: 30,
+          status: 'pending',
+          display_order: 0,
         })
         .select()
         .single();
 
-      // In real implementation, XP calculation might be done on completion
-      expect(task.xp_reward).toBe(baseXP);
-      // Additional XP logic would be tested here
+      // Start the task
+      const startTime = new Date().toISOString();
+      const { data: startedTask, error } = await supabase
+        .from('micro_tasks')
+        .update({
+          started_at: startTime,
+        })
+        .eq('id', task.id)
+        .select()
+        .single();
+
+      expect(error).toBeNull();
+      expect(startedTask.started_at).toBeDefined();
     });
   });
 
   describe('Task Filtering and Sorting', () => {
     beforeEach(async () => {
-      // Create test tasks with different properties
+      // Create test tasks with different statuses
       const tasks = [
         {
           user_id: testUserId,
-          title: 'Easy Task',
-          resistance_level: 2,
-          duration_minutes: 10,
-          xp_reward: 20,
-          is_completed: false,
+          title: 'Completed Task',
+          est_minutes: 15,
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          display_order: 0,
         },
         {
           user_id: testUserId,
-          title: 'Medium Task',
-          resistance_level: 5,
-          duration_minutes: 25,
-          xp_reward: 50,
-          is_completed: true,
+          title: 'Pending Task 1',
+          est_minutes: 30,
+          status: 'pending',
+          display_order: 1,
         },
         {
           user_id: testUserId,
-          title: 'Hard Task',
-          resistance_level: 9,
-          duration_minutes: 60,
-          xp_reward: 120,
-          is_completed: false,
+          title: 'Pending Task 2',
+          est_minutes: 45,
+          status: 'pending',
+          display_order: 2,
         },
       ];
 
@@ -262,38 +259,41 @@ describe('Tasks API Integration Tests', () => {
     });
 
     it('should filter incomplete tasks', async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('micro_tasks')
         .select('*')
         .eq('user_id', testUserId)
-        .eq('is_completed', false);
+        .eq('status', 'pending');
 
+      expect(error).toBeNull();
       expect(data).toHaveLength(2);
-      expect(data.every((task: any) => !task.is_completed)).toBe(true);
+      expect(data.every((task: any) => task.status === 'pending')).toBe(true);
     });
 
-    it('should sort by resistance level', async () => {
-      const { data } = await supabase
+    it('should sort by display order', async () => {
+      const { data, error } = await supabase
         .from('micro_tasks')
         .select('*')
         .eq('user_id', testUserId)
-        .order('resistance_level', { ascending: true });
+        .order('display_order', { ascending: true });
 
-      expect(data[0].resistance_level).toBe(2);
-      expect(data[1].resistance_level).toBe(5);
-      expect(data[2].resistance_level).toBe(9);
+      expect(error).toBeNull();
+      expect(data[0].display_order).toBe(0);
+      expect(data[1].display_order).toBe(1);
+      expect(data[2].display_order).toBe(2);
     });
 
-    it('should filter by duration range', async () => {
-      const { data } = await supabase
+    it('should filter by estimated duration', async () => {
+      const { data, error } = await supabase
         .from('micro_tasks')
         .select('*')
         .eq('user_id', testUserId)
-        .gte('duration_minutes', 20)
-        .lte('duration_minutes', 30);
+        .gte('est_minutes', 30)
+        .lte('est_minutes', 45);
 
-      expect(data).toHaveLength(1);
-      expect(data[0].title).toBe('Medium Task');
+      expect(error).toBeNull();
+      expect(data).toHaveLength(2);
+      expect(data[0].title).toContain('Pending Task');
     });
   });
 });

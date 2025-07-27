@@ -65,7 +65,7 @@ export class SoundSystem {
     if (sound) {
       sound.currentTime = 0;
       sound.volume = this.volume;
-      sound.play().catch(e => console.log('Sound play failed:', e));
+      sound.play().catch(() => {});
     }
   }
 
@@ -85,7 +85,7 @@ export class SoundSystem {
       this.ambientAudio = ambient;
       this.ambientAudio.loop = true;
       this.ambientAudio.volume = this.volume * 0.3; // Quieter ambient
-      this.ambientAudio.play().catch(e => console.log('Ambient play failed:', e));
+      this.ambientAudio.play().catch(() => {});
     }
   }
 

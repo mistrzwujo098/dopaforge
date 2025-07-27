@@ -12,9 +12,7 @@ import { TaskCard } from '@/components/task-card';
 import { CreateTaskDialog } from '@/components/create-task-dialog';
 import { StatsCard } from '@/components/stats-card';
 import { ProgressBar } from '@/components/progress-bar';
-import { ProgressStory } from '@/components/features/ProgressStory';
-import { EmotionInterventions } from '@/components/features/EmotionInterventions';
-import { TaskPriorityAdvisor } from '@/components/features/TaskPriorityAdvisor';
+// Removed direct imports - using dynamic imports instead
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/useToast';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
@@ -62,14 +60,18 @@ import {
   DynamicEnvironmentalPriming,
   DynamicCueScheduler,
   DynamicLootbox,
+  DynamicProgressStory,
+  DynamicEmotionInterventions,
+  DynamicTaskPriorityAdvisor,
+  DynamicBehavioralInterventions,
+  DynamicPreemptiveStrike,
+  DynamicSocialAccountability,
+  DynamicPhysicalIntegration,
+  DynamicInteractiveHints,
 } from '@/components/dynamic-imports';
 import { NotificationPermission } from '@/components/notification-permission';
 import { observability } from '@/lib/observability';
-import { BehavioralInterventions } from '@/components/behavioral-interventions';
-import { PreemptiveStrike } from '@/components/preemptive-strike';
-import { SocialAccountability } from '@/components/social-accountability';
-import { PhysicalIntegration } from '@/components/physical-integration';
-import { InteractiveHints } from '@/components/interactive-hints';
+// Removed direct imports - using dynamic imports instead
 
 type Task = Database['public']['Tables']['micro_tasks']['Row'];
 type UserProfile = Database['public']['Tables']['user_profiles']['Row'];
@@ -325,7 +327,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
       {/* Behavioral Interventions System */}
       {user && (
-        <BehavioralInterventions
+        <DynamicBehavioralInterventions
           userId={user.id}
           currentTasks={tasks}
           lastActivity={lastActivity}
@@ -334,7 +336,7 @@ export default function DashboardPage() {
       
       {/* AI Emotion-Based Interventions */}
       {user && (
-        <EmotionInterventions
+        <DynamicEmotionInterventions
           currentTask={tasks.find(t => t.status === 'pending') || null}
           completionRate={tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0}
           totalTasksToday={tasks.length}
@@ -386,11 +388,11 @@ export default function DashboardPage() {
       <NotificationPermission />
       
       {/* Advanced Anti-Procrastination Systems */}
-      <InteractiveHints />
-      <PreemptiveStrike 
+      <DynamicInteractiveHints />
+      <DynamicPreemptiveStrike 
         userId={user?.id || ''} 
         onActionRequired={(action) => {
-          console.log('Action required:', action);
+          // Handle action required
           // Handle different actions
         }}
       />
@@ -434,7 +436,7 @@ export default function DashboardPage() {
 
         {/* AI Progress Story */}
         <div className="mb-6 sm:mb-8">
-          <ProgressStory tasks={tasks} />
+          <DynamicProgressStory tasks={tasks} />
         </div>
 
         <Card className="mb-8">
@@ -519,7 +521,7 @@ export default function DashboardPage() {
 
           <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
             {/* AI Task Priority Advisor */}
-            <TaskPriorityAdvisor
+            <DynamicTaskPriorityAdvisor
               tasks={tasks}
               onTaskSelect={(taskId) => {
                 handleStartTask(taskId);
@@ -641,17 +643,17 @@ export default function DashboardPage() {
             />
             
             {/* Social Accountability System */}
-            <SocialAccountability
+            <DynamicSocialAccountability
               userId={user!.id}
               currentStreak={profile?.current_streak || 0}
               tasksToday={completedTasks.length}
             />
             
             {/* Physical World Integration */}
-            <PhysicalIntegration
+            <DynamicPhysicalIntegration
               userId={user!.id}
               onPhysicalAction={(action) => {
-                console.log('Physical action:', action);
+                // Physical action triggered
                 toast({
                   title: 'Wymagana akcja fizyczna',
                   description: action,

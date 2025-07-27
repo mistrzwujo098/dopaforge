@@ -27,7 +27,7 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
             filter: `user_id=eq.${userId}`,
           },
           (payload: RealtimePostgresChangesPayload<any>) => {
-            console.log('Task change:', payload);
+            // Task change detected
             onTasksChange?.();
           }
         )
@@ -40,7 +40,7 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
             filter: `user_id=eq.${userId}`,
           },
           (payload: RealtimePostgresChangesPayload<any>) => {
-            console.log('Profile change:', payload);
+            // Profile change detected
             onProfileChange?.();
           }
         )
@@ -53,7 +53,7 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
             filter: `user_id=eq.${userId}`,
           },
           (payload: RealtimePostgresChangesPayload<any>) => {
-            console.log('Reward change:', payload);
+            // Reward change detected
             onProfileChange?.();
           }
         )
@@ -73,7 +73,7 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
   // Handle online/offline status
   useEffect(() => {
     const handleOnline = () => {
-      console.log('Back online - syncing data');
+      // Back online - syncing data
       // Trigger sync when coming back online
       if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
         navigator.serviceWorker.ready.then((registration: any) => {
@@ -83,7 +83,7 @@ export function useRealtimeSync({ userId, onTasksChange, onProfileChange }: UseR
     };
 
     const handleOffline = () => {
-      console.log('Gone offline - using cached data');
+      // Gone offline - using cached data
     };
 
     window.addEventListener('online', handleOnline);

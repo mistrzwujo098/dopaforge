@@ -30,7 +30,15 @@ export function ProgressBar({ value, max, label }: ProgressBarProps) {
         </div>
       )}
       <div className="relative">
-        <Progress value={value} max={max} className="h-3" />
+        <Progress 
+          value={value} 
+          max={max} 
+          className="h-3" 
+          aria-label={label}
+          aria-valuenow={value}
+          aria-valuemin={0}
+          aria-valuemax={max}
+        />
         {isHighProgress && (
           <motion.div
             initial={{ opacity: 0 }}

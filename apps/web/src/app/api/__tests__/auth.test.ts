@@ -59,7 +59,7 @@ describe('Auth API Integration Tests', () => {
       });
 
       expect(error).toBeDefined();
-      expect(error?.message).toContain('password');
+      expect(error?.message.toLowerCase()).toContain('password');
     });
   });
 

@@ -71,8 +71,7 @@ export function createSupabaseBrowser() {
   }
 
   try {
-    console.log('Creating Supabase client with URL:', cleanUrl.substring(0, 30) + '...');
-    console.log('Key length after cleanup:', cleanKey.length);
+    // Client initialization - URL and key validated
     
     browserClient = createBrowserClient<Database>(cleanUrl, cleanKey, {
       cookies: {
@@ -103,7 +102,7 @@ export function createSupabaseBrowser() {
         },
       },
     });
-    console.log('Supabase client created successfully');
+    // Client created successfully
     return browserClient;
   } catch (error) {
     console.error('Failed to create Supabase client:', error);

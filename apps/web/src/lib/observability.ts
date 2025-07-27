@@ -207,7 +207,7 @@ class ObservabilityService {
   // Send data to backend (placeholder - would integrate with real monitoring service)
   private async sendMetrics(metrics: MetricEvent[]) {
     try {
-      console.log('[Observability] Sending metrics:', metrics);
+      // Sending metrics to monitoring service
       // In production, send to monitoring service like DataDog, New Relic, etc.
       // await fetch('/api/metrics', {
       //   method: 'POST',

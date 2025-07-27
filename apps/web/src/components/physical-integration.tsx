@@ -317,7 +317,7 @@ export function PhysicalIntegration({ userId, onPhysicalAction }: PhysicalIntegr
 // Helper functions
 function showLockModal(instructions: any) {
   // Implementacja modala z instrukcjami
-  console.log('Lock instructions:', instructions);
+  // TODO: Implement modal with lock instructions
 }
 
 function generateICS(events: any[]) {
@@ -351,5 +351,5 @@ function downloadICS(content: string) {
 
 function toast(options: any) {
   // Toast notification
-  console.log('Toast:', options);
+  // TODO: Implement toast notification
 }
