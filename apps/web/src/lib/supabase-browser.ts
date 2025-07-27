@@ -85,12 +85,18 @@ export function createSupabaseBrowser() {
         },
         set: (name: string, value: string, options?: any) => {
           if (typeof document !== 'undefined') {
-            document.cookie = `${name}=${value}; path=/; ${options?.maxAge ? `max-age=${options.maxAge};` : ''}`;
+            const secure = window.location.protocol === 'https:' ? 'Secure;' : '';
+            const sameSite = 'SameSite=Lax;';
+            const maxAge = options?.maxAge ? `max-age=${options.maxAge};` : '';
+            // Note: HttpOnly can't be set from client-side JavaScript
+            document.cookie = `${name}=${value}; path=/; ${secure} ${sameSite} ${maxAge}`;
           }
         },
         remove: (name: string) => {
           if (typeof document !== 'undefined') {
-            document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+            const secure = window.location.protocol === 'https:' ? 'Secure;' : '';
+            const sameSite = 'SameSite=Lax;';
+            document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; ${secure} ${sameSite}`;
           }
         },
       },

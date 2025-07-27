@@ -11,6 +11,8 @@ import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@dopaforge/ui';
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
+import { generateCSRFToken } from '@/lib/csrf';
+import { getSafeErrorMessage, logError } from '@/lib/error-handling';
 
 function AuthForm() {
   const [email, setEmail] = useState('');
@@ -42,29 +44,30 @@ function AuthForm() {
       try {
         supabase = createSupabaseBrowser();
       } catch (clientError: any) {
-        console.error('Failed to create Supabase client:', clientError);
+        logError(clientError, { component: 'AuthForm', action: 'createClient' });
         toast({
           title: 'Błąd konfiguracji',
-          description: 'Aplikacja nie jest prawidłowo skonfigurowana. Sprawdź zmienne środowiskowe.',
+          description: getSafeErrorMessage(clientError, 'Aplikacja nie jest prawidłowo skonfigurowana.'),
           variant: 'destructive',
         });
-        
-        // Show debug info in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Debug: Visit /test-env to check environment variables');
-        }
         
         setLoading(false);
         return;
       }
 
       if (isSignUp) {
+        // Generate CSRF token for sign up
+        const csrfToken = generateCSRFToken();
+        
+        // Store CSRF token in cookie
+        document.cookie = `auth_state=${csrfToken}; path=/; max-age=3600; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
+        
         // Sign up new user
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            emailRedirectTo: `${window.location.origin}/auth/callback?state=${csrfToken}`,
           }
         });
         
@@ -98,19 +101,18 @@ function AuthForm() {
         }
       }
     } catch (error: any) {
-      console.error('Auth error:', error);
+      logError(error, { component: 'AuthForm', action: isSignUp ? 'signUp' : 'signIn' });
       
-      // Better error messages
-      let errorMessage = 'Wystąpił nieoczekiwany błąd';
+      // Map specific errors to user-friendly messages
+      let errorMessage = getSafeErrorMessage(error, 'Wystąpił nieoczekiwany błąd');
       
-      if (error.message?.includes('fetch')) {
-        errorMessage = 'Nie można połączyć z serwerem. Sprawdź konfigurację.';
-      } else if (error.message === 'Invalid login credentials') {
-        errorMessage = 'Nieprawidłowy email lub hasło';
-      } else if (error.message?.includes('User already registered')) {
-        errorMessage = 'Użytkownik z tym emailem już istnieje';
-      } else if (error.message) {
-        errorMessage = error.message;
+      // Override with specific messages for known errors
+      if (process.env.NODE_ENV !== 'production') {
+        if (error.message === 'Invalid login credentials') {
+          errorMessage = 'Nieprawidłowy email lub hasło';
+        } else if (error.message?.includes('User already registered')) {
+          errorMessage = 'Użytkownik z tym emailem już istnieje';
+        }
       }
       
       toast({

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, Button, Input } from '@dopaforge/ui';
 import { Users, Eye, Share2, AlertCircle, Trophy, Flame } from 'lucide-react';
 import { AddictionEngine } from '@/lib/addiction-engine';
@@ -21,6 +22,39 @@ export function SocialAccountability({
   const [publicCommitments, setPublicCommitments] = useState<any[]>([]);
   const [witnessMode, setWitnessMode] = useState(false);
   const [shameLevel, setShameLevel] = useState(0);
+  const [activeWitness, setActiveWitness] = useState<string>('');
+  const [partnerNotifications, setPartnerNotifications] = useState<Array<{id: number, message: string}>>([]);
+
+  // Witness Eye Component - bezpieczna implementacja
+  const WitnessEye = ({ witness }: { witness: string }) => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0 }}
+      className="fixed top-20 right-5 bg-red-100 border-2 border-red-500 rounded-full p-4 z-50 animate-pulse"
+    >
+      <div className="text-center">
+        <Eye className="h-8 w-8 text-red-600 mx-auto" />
+        <div className="text-xs mt-1">{witness}</div>
+      </div>
+    </motion.div>
+  );
+
+  // Partner Notification Component - bezpieczna implementacja
+  const PartnerNotification = ({ notification }: { notification: { id: number, message: string } }) => (
+    <motion.div
+      key={notification.id}
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
+      className="fixed bottom-20 right-4 bg-blue-100 border-2 border-blue-500 rounded-lg p-4 shadow-lg max-w-sm"
+    >
+      <div className="flex items-center gap-3">
+        <Users className="h-6 w-6 text-blue-600 flex-shrink-0" />
+        <p className="text-sm">{notification.message}</p>
+      </div>
+    </motion.div>
+  );
 
   // System "Witness Mode" - ktoś patrzy
   const activateWitnessMode = () => {
@@ -37,29 +71,8 @@ export function SocialAccountability({
     
     const randomWitness = witnesses[Math.floor(Math.random() * witnesses.length)];
     
-    // Pokaż "oko" w rogu ekranu
-    const eyeElement = document.createElement('div');
-    eyeElement.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: rgba(255,0,0,0.1);
-        border: 2px solid red;
-        border-radius: 50%;
-        padding: 15px;
-        z-index: 9999;
-        animation: pulse 2s infinite;
-      ">
-        <div style="text-align: center;">
-          👁️
-          <div style="font-size: 12px; margin-top: 5px;">
-            ${randomWitness}
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(eyeElement);
+    // Pokaż "oko" w rogu ekranu - bezpieczna implementacja
+    setActiveWitness(randomWitness);
     
     // Zwiększ produktywność gdy ktoś "patrzy"
     setTimeout(() => {
@@ -128,34 +141,18 @@ export function SocialAccountability({
     const showPartnerPressure = () => {
       const message = partnerActions[Math.floor(Math.random() * partnerActions.length)];
       
-      // Pokaż jako "wiadomość"
-      const notification = document.createElement('div');
-      notification.style.cssText = `
-        position: fixed;
-        bottom: 100px;
-        left: 20px;
-        background: #fff;
-        border: 2px solid #3b82f6;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        z-index: 9999;
-        max-width: 300px;
-        animation: slideIn 0.3s ease-out;
-      `;
-      notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="font-size: 24px;">👤</div>
-          <div>
-            <strong>${partnerId}</strong>
-            <p style="margin: 5px 0 0 0; font-size: 14px;">${message}</p>
-          </div>
-        </div>
-      `;
+      // Dodaj powiadomienie do stanu
+      const newNotification = {
+        id: Date.now(),
+        message: message
+      };
       
-      document.body.appendChild(notification);
+      setPartnerNotifications(prev => [...prev, newNotification]);
       
-      setTimeout(() => notification.remove(), 5000);
+      // Usuń po 5 sekundach
+      setTimeout(() => {
+        setPartnerNotifications(prev => prev.filter(n => n.id !== newNotification.id));
+      }, 5000);
     };
     
     // Pokaż co 15-30 minut
@@ -360,6 +357,28 @@ export function SocialAccountability({
             </p>
           </div>
         </Card>
+      )}
+
+      {/* Bezpieczne renderowanie witness eye przez React Portal */}
+      {witnessMode && activeWitness && typeof document !== 'undefined' && (
+        createPortal(
+          <AnimatePresence>
+            <WitnessEye witness={activeWitness} />
+          </AnimatePresence>,
+          document.body
+        )
+      )}
+
+      {/* Bezpieczne renderowanie partner notifications przez React Portal */}
+      {partnerNotifications.length > 0 && typeof document !== 'undefined' && (
+        createPortal(
+          <AnimatePresence>
+            {partnerNotifications.map(notification => (
+              <PartnerNotification key={notification.id} notification={notification} />
+            ))}
+          </AnimatePresence>,
+          document.body
+        )
       )}
     </div>
   );

@@ -3,7 +3,18 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const size = parseInt(searchParams.get('size') || '192');
+  const sizeParam = searchParams.get('size') || '192';
+  const size = parseInt(sizeParam);
+  
+  // Validate size parameter
+  if (isNaN(size) || size < 16 || size > 1024) {
+    return new NextResponse('Invalid size parameter. Size must be between 16 and 1024.', { 
+      status: 400,
+      headers: {
+        'Content-Type': 'text/plain',
+      }
+    });
+  }
   
   // Create a simple icon with DopaForge branding
   const svg = `
