@@ -44,7 +44,7 @@ class PerformanceMonitor {
       // Observe FID
       const fidObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          this.metrics.fid = Math.round(entry.processingStart - entry.startTime);
+          this.metrics.fid = Math.round((entry as any).processingStart - entry.startTime);
         }
       });
       fidObserver.observe({ entryTypes: ['first-input'] });
@@ -90,7 +90,11 @@ class PerformanceMonitor {
   }
 
   public recordMetric(name: string, value: number) {
-    observability.trackPerformance(name, value);
+    observability.trackMetric({
+      name,
+      value,
+      tags: { source: 'performance-monitor' }
+    });
   }
 
   public recordPageLoad(pageName: string) {

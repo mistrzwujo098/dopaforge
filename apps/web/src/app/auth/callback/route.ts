@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     
     // Validate CSRF token if state parameter is present
     if (state) {
-      const storedState = cookieStore.get('auth_state')?.value;
+      const storedState = cookieStore.get('auth_state')?.value || null;
       
       if (!validateCSRFToken(state, storedState)) {
         console.error('CSRF token validation failed');

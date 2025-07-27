@@ -17,9 +17,9 @@ export async function GET(request: NextRequest) {
         }
       },
       database: {
-        status: 'unknown',
-        tables: [],
-        error: null
+        status: 'unknown' as 'unknown' | 'ok' | 'error',
+        tables: [] as string[],
+        error: null as string | null
       }
     }
   };
