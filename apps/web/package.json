@@ -23,6 +23,7 @@
   "dependencies": {
     "@dopaforge/db": "workspace:*",
     "@dopaforge/ui": "workspace:*",
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",

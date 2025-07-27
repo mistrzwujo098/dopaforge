@@ -12,6 +12,9 @@ import { TaskCard } from '@/components/task-card';
 import { CreateTaskDialog } from '@/components/create-task-dialog';
 import { StatsCard } from '@/components/stats-card';
 import { ProgressBar } from '@/components/progress-bar';
+import { ProgressStory } from '@/components/features/ProgressStory';
+import { EmotionInterventions } from '@/components/features/EmotionInterventions';
+import { TaskPriorityAdvisor } from '@/components/features/TaskPriorityAdvisor';
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/useToast';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
@@ -327,6 +330,16 @@ export default function DashboardPage() {
         />
       )}
       
+      {/* AI Emotion-Based Interventions */}
+      {user && (
+        <EmotionInterventions
+          currentTask={tasks.find(t => t.status === 'in_progress') || null}
+          completionRate={tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0}
+          totalTasksToday={tasks.length}
+          completedTasksToday={completedTasks.length}
+        />
+      )}
+      
       {showConfetti && (
         <DynamicConfetti
           recycle={false}
@@ -417,6 +430,11 @@ export default function DashboardPage() {
           />
         </div>
 
+        {/* AI Progress Story */}
+        <div className="mb-6 sm:mb-8">
+          <ProgressStory tasks={tasks} />
+        </div>
+
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Postęp dnia</CardTitle>
@@ -498,6 +516,14 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
+            {/* AI Task Priority Advisor */}
+            <TaskPriorityAdvisor
+              tasks={tasks}
+              onTaskSelect={(taskId) => {
+                handleStartTask(taskId);
+              }}
+            />
+            
             <Card>
               <CardHeader>
                 <CardTitle>Małe zwycięstwa 🎯</CardTitle>
