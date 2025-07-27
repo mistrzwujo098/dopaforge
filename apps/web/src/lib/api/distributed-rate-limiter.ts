@@ -129,11 +129,14 @@ export async function createRedisClient(): Promise<RedisLike | undefined> {
   }
   
   try {
-    // Dynamic import to avoid errors when ioredis is not installed
-    const { default: Redis } = await import('ioredis').catch(() => {
+    // Use require with try-catch for truly optional dependency
+    let Redis: any;
+    try {
+      Redis = require('ioredis');
+    } catch (e) {
       console.log('ioredis not installed, using in-memory rate limiting');
-      return { default: null };
-    });
+      return undefined;
+    }
     
     if (!Redis) {
       return undefined;
