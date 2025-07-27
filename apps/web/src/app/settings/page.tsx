@@ -12,7 +12,7 @@ import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/useToast';
 import { useThemeStore } from '@/stores/theme';
 import { getUserProfile, updateUserProfile } from '@dopaforge/db';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { Moon, Sun, Bell, LogOut } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -62,6 +62,7 @@ export default function SettingsPage() {
   const handleSignOut = async () => {
     setLoading(true);
     try {
+      const supabase = createSupabaseBrowser();
       await supabase.auth.signOut();
       router.push('/auth');
     } catch (error) {

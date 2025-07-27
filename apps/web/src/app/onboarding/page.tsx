@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { GuidedOnboarding } from '@/components/guided-onboarding';
 import { useUser } from '@/hooks/useUser';
 
