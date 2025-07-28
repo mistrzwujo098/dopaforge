@@ -206,9 +206,8 @@ export class NotificationScheduler {
         icon: '/icon-192.png',
         badge: '/icon-192.png',
         tag,
-        data,
+        data: data ? { url: data } : undefined,
         requireInteraction: false,
-        vibrate: [200],
       });
 
       notification.onclick = () => {

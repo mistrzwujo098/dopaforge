@@ -77,7 +77,6 @@ export function ProgressBar({ value, max, label }: ProgressBarProps) {
           <>
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
               className="absolute inset-0 h-3 rounded-full bg-dopamine-gradient opacity-20 blur-xl"
               {...pulse}

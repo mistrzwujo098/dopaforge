@@ -12,8 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
   Textarea,
-  RadioGroup,
-  RadioGroupItem,
   Label,
 } from '@dopaforge/ui';
 import { MessageSquare, Send, CheckCircle } from 'lucide-react';
@@ -113,29 +111,23 @@ export function FeedbackDialog() {
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
                   <Label>Rodzaj opinii</Label>
-                  <RadioGroup
-                    value={type}
-                    onValueChange={(value) => setType(value as FeedbackType)}
-                  >
-                    <div className="grid grid-cols-2 gap-2">
-                      {feedbackTypes.map((option) => (
-                        <div key={option.value}>
-                          <RadioGroupItem
-                            value={option.value}
-                            id={option.value}
-                            className="peer sr-only"
-                          />
-                          <Label
-                            htmlFor={option.value}
-                            className="flex items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                          >
-                            <span className="text-lg">{option.emoji}</span>
-                            <span className="text-sm font-medium">{option.label}</span>
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </RadioGroup>
+                  <div className="grid grid-cols-2 gap-2">
+                    {feedbackTypes.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setType(option.value as FeedbackType)}
+                        className={`flex items-center justify-center gap-2 rounded-md border-2 p-3 transition-all ${
+                          type === option.value
+                            ? 'border-primary bg-primary/5 text-primary'
+                            : 'border-muted bg-popover hover:bg-accent hover:text-accent-foreground'
+                        }`}
+                      >
+                        <span className="text-lg">{option.emoji}</span>
+                        <span className="text-sm font-medium">{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 
                 <div className="space-y-2">

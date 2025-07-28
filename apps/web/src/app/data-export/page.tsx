@@ -10,10 +10,9 @@ import {
   CardDescription, 
   CardHeader, 
   CardTitle,
-  RadioGroup,
-  RadioGroupItem,
   Label,
   Checkbox,
+  Select,
 } from '@dopaforge/ui';
 import { Download, FileJson, FileText, Shield, ArrowLeft } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
@@ -253,25 +252,46 @@ export default function DataExportPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <RadioGroup
-                  value={format}
-                  onValueChange={(value) => setFormat(value as ExportFormat)}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="json" id="json" />
-                    <Label htmlFor="json" className="flex items-center gap-2 cursor-pointer">
-                      <FileJson className="h-4 w-4" />
-                      JSON (kompletne dane)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="csv" id="csv" />
-                    <Label htmlFor="csv" className="flex items-center gap-2 cursor-pointer">
-                      <FileText className="h-4 w-4" />
-                      CSV (zadania) + JSON (pozostałe)
-                    </Label>
-                  </div>
-                </RadioGroup>
+                <div className="space-y-4">
+                  <button
+                    type="button"
+                    onClick={() => setFormat('json')}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                      format === 'json' 
+                        ? 'border-primary bg-primary/5 text-primary' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 transition-colors ${
+                      format === 'json' ? 'border-primary bg-primary' : 'border-muted-foreground'
+                    }`}>
+                      {format === 'json' && (
+                        <div className="w-full h-full rounded-full bg-white scale-50" />
+                      )}
+                    </div>
+                    <FileJson className="h-4 w-4" />
+                    <span className="font-medium">JSON (kompletne dane)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormat('csv')}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                      format === 'csv' 
+                        ? 'border-primary bg-primary/5 text-primary' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 transition-colors ${
+                      format === 'csv' ? 'border-primary bg-primary' : 'border-muted-foreground'
+                    }`}>
+                      {format === 'csv' && (
+                        <div className="w-full h-full rounded-full bg-white scale-50" />
+                      )}
+                    </div>
+                    <FileText className="h-4 w-4" />
+                    <span className="font-medium">CSV (zadania) + JSON (pozostałe)</span>
+                  </button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
