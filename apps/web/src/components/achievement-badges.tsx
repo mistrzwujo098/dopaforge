@@ -54,7 +54,7 @@ export function AchievementBadges({
     if (newAchievements.length > 0) {
       // Show unlock animation for each
       newAchievements.forEach((achievement, index) => {
-        setTimeout(() => {
+        setTimeout(async () => {
           setNewlyUnlocked(achievement);
           soundSystem.play('achievement');
           onAchievementUnlocked(achievement);

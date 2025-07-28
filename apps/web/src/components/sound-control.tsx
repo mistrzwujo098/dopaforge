@@ -4,30 +4,71 @@ import { useState, useEffect } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@dopaforge/ui';
 import { SoundSystem } from '@/lib/sound-system';
+import { useUser } from '@/hooks/useUser';
+import { getUserProfile, updateUserProfile } from '@/lib/db-client';
 
 export function SoundControl() {
   const [enabled, setEnabled] = useState(true);
   const [volume, setVolume] = useState(0.5);
   const soundSystem = SoundSystem.getInstance();
+  const { user } = useUser();
 
   useEffect(() => {
-    const savedEnabled = localStorage.getItem('soundEnabled') !== 'false';
-    const savedVolume = parseFloat(localStorage.getItem('soundVolume') || '0.5');
-    setEnabled(savedEnabled);
-    setVolume(savedVolume);
-  }, []);
+    const loadSoundSettings = async () => {
+      if (user) {
+        try {
+          const profile = await getUserProfile(user.id);
+          if (profile) {
+            setEnabled((profile as any).sound_enabled !== false);
+            setVolume((profile as any).sound_volume || 0.5);
+            soundSystem.setEnabled((profile as any).sound_enabled !== false);
+            soundSystem.setVolume((profile as any).sound_volume || 0.5);
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to load sound settings from database:', error);
+        }
+      }
+      
+      // Fallback na localStorage
+      const savedEnabled = localStorage.getItem('soundEnabled') !== 'false';
+      const savedVolume = parseFloat(localStorage.getItem('soundVolume') || '0.5');
+      setEnabled(savedEnabled);
+      setVolume(savedVolume);
+    };
+    
+    loadSoundSettings();
+  }, [user]);
 
-  const toggleSound = () => {
+  const toggleSound = async () => {
     const newEnabled = !enabled;
     setEnabled(newEnabled);
     soundSystem.setEnabled(newEnabled);
     soundSystem.play('click');
+    
+    // Zapisz do bazy danych
+    if (user) {
+      try {
+        await updateUserProfile(user.id, { sound_enabled: newEnabled } as any);
+      } catch (error) {
+        console.error('Failed to save sound setting to database:', error);
+      }
+    }
   };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVolumeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
     soundSystem.setVolume(newVolume);
+    
+    // Zapisz do bazy danych z debounce
+    if (user) {
+      try {
+        await updateUserProfile(user.id, { sound_volume: newVolume } as any);
+      } catch (error) {
+        console.error('Failed to save volume setting to database:', error);
+      }
+    }
   };
 
   return (
