@@ -44,9 +44,9 @@ const TRIGGER_ICONS = {
 };
 
 const TRIGGER_LABELS = {
-  time: 'Time',
-  location: 'Location',
-  habit: 'After habit',
+  time: 'Czas',
+  location: 'Miejsce',
+  habit: 'Po nawyku',
 };
 
 export function ImplementationIntentions({
@@ -83,28 +83,28 @@ export function ImplementationIntentions({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>If-Then Scripts</CardTitle>
+          <CardTitle>Skrypty Jeśli-To</CardTitle>
           <CardDescription>
-            Create automatic triggers for your tasks
+            Utwórz automatyczne wyzwalacze dla swoich zadań
           </CardDescription>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline">
               <Plus className="mr-2 h-4 w-4" />
-              Add Script
+              Dodaj Skrypt
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Create Implementation Intention</DialogTitle>
+              <DialogTitle>Utwórz Intencję Implementacyjną</DialogTitle>
               <DialogDescription>
-                When X happens, I will do Y
+                Gdy X się wydarzy, zrobię Y
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label>Trigger Type</Label>
+                <Label>Typ wyzwalacza</Label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['time', 'location', 'habit'] as const).map((type) => {
                     const Icon = TRIGGER_ICONS[type];
@@ -125,9 +125,9 @@ export function ImplementationIntentions({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="trigger">
-                  {triggerType === 'time' && 'When (e.g., 9:00 AM)'}
-                  {triggerType === 'location' && 'Where (e.g., at my desk)'}
-                  {triggerType === 'habit' && 'After (e.g., morning coffee)'}
+                  {triggerType === 'time' && 'Kiedy (np. 9:00)'}
+                  {triggerType === 'location' && 'Gdzie (np. przy biurku)'}
+                  {triggerType === 'habit' && 'Po (np. porannej kawie)'}
                 </Label>
                 <Input
                   id="trigger"
@@ -135,20 +135,20 @@ export function ImplementationIntentions({
                   onChange={(e) => setTriggerValue(e.target.value)}
                   placeholder={
                     triggerType === 'time'
-                      ? '9:00 AM'
+                      ? '9:00'
                       : triggerType === 'location'
-                      ? 'at my desk'
-                      : 'morning coffee'
+                      ? 'przy biurku'
+                      : 'porannej kawie'
                   }
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="action">I will...</Label>
+                <Label htmlFor="action">Zrobię...</Label>
                 <Input
                   id="action"
                   value={action}
                   onChange={(e) => setAction(e.target.value)}
-                  placeholder="write 100 words"
+                  placeholder="napisać 100 słów"
                 />
               </div>
             </div>
@@ -159,13 +159,13 @@ export function ImplementationIntentions({
                 onClick={() => setOpen(false)}
                 disabled={loading}
               >
-                Cancel
+                Anuluj
               </Button>
               <Button
                 onClick={handleAdd}
                 disabled={!triggerValue.trim() || !action.trim() || loading}
               >
-                {loading ? 'Creating...' : 'Create Script'}
+                {loading ? 'Tworzenie...' : 'Utwórz Skrypt'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -175,7 +175,7 @@ export function ImplementationIntentions({
         <div className="space-y-2">
           {intentions.length === 0 ? (
             <p className="text-center py-6 text-muted-foreground">
-              No scripts yet. Create your first implementation intention!
+              Brak skryptów. Utwórz swoją pierwszą intencję implementacyjną!
             </p>
           ) : (
             intentions.map((intention, index) => {
@@ -192,9 +192,9 @@ export function ImplementationIntentions({
                 >
                   <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 text-sm">
-                    <span className="text-muted-foreground">When </span>
+                    <span className="text-muted-foreground">Gdy </span>
                     <span className="font-medium">{intention.trigger_value}</span>
-                    <span className="text-muted-foreground">, I will </span>
+                    <span className="text-muted-foreground">, zrobię </span>
                     <span className="font-medium">{intention.action}</span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -203,7 +203,7 @@ export function ImplementationIntentions({
                       variant="ghost"
                       onClick={() => onToggle(intention.id, !intention.active)}
                     >
-                      {intention.active ? 'Active' : 'Paused'}
+                      {intention.active ? 'Aktywny' : 'Wstrzymany'}
                     </Button>
                     <Button
                       size="sm"

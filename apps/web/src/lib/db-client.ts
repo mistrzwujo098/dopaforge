@@ -26,7 +26,14 @@ export async function getTodayTasks(userId: string) {
     console.error('Error fetching tasks:', error);
     throw error;
   }
-  return data as MicroTask[];
+  
+  // Dodatkowa walidacja - upewnij się, że zwracamy tylko dzisiejsze zadania
+  const todayTasks = (data || []).filter(task => {
+    const taskDate = new Date(task.created_at);
+    return taskDate >= today;
+  });
+  
+  return todayTasks as MicroTask[];
 }
 
 export async function createTask(task: MicroTaskInsert) {
@@ -58,6 +65,73 @@ export async function updateTask(id: string, update: MicroTaskUpdate) {
     throw error;
   }
   return data as MicroTask;
+}
+
+export async function completeTask(taskId: string, userId: string) {
+  const supabase = createSupabaseBrowser();
+  
+  // Update task status to completed
+  const { data: task, error: taskError } = await supabase
+    .from('micro_tasks')
+    .update({ 
+      status: 'completed',
+      completed_at: new Date().toISOString()
+    })
+    .eq('id', taskId)
+    .eq('user_id', userId)
+    .select()
+    .single();
+
+  if (taskError) {
+    console.error('Error completing task:', taskError);
+    throw taskError;
+  }
+
+  // Update user profile with XP
+  const { data: profile, error: profileError } = await supabase
+    .from('user_profiles')
+    .select('total_xp, tasks_completed, current_streak, last_task_date')
+    .eq('user_id', userId)
+    .single();
+
+  if (profileError) {
+    console.error('Error fetching user profile:', profileError);
+    throw profileError;
+  }
+
+  // Calculate streak
+  const today = new Date().toDateString();
+  const lastTaskDate = profile.last_task_date ? new Date(profile.last_task_date).toDateString() : null;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayString = yesterday.toDateString();
+
+  let newStreak = profile.current_streak || 0;
+  if (lastTaskDate !== today) {
+    if (lastTaskDate === yesterdayString) {
+      newStreak += 1;
+    } else if (lastTaskDate !== today) {
+      newStreak = 1;
+    }
+  }
+
+  // Update user profile
+  const { error: updateError } = await supabase
+    .from('user_profiles')
+    .update({
+      total_xp: (profile.total_xp || 0) + task.est_minutes,
+      tasks_completed: (profile.tasks_completed || 0) + 1,
+      current_streak: newStreak,
+      last_task_date: new Date().toISOString()
+    })
+    .eq('user_id', userId);
+
+  if (updateError) {
+    console.error('Error updating user profile:', updateError);
+    throw updateError;
+  }
+
+  return { task, xpEarned: task.est_minutes, newStreak };
 }
 
 export async function reorderTasks(userId: string, taskIds: string[]) {
@@ -276,6 +350,22 @@ export async function deleteImplementationIntention(id: string) {
   }
 }
 
+export async function updateImplementationIntention(id: string, updates: { active?: boolean }) {
+  const supabase = createSupabaseBrowser();
+  const { data, error } = await supabase
+    .from('implementation_intentions')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating implementation intention:', error);
+    throw error;
+  }
+  return data;
+}
+
 // Commitment contracts
 export async function getCommitmentContracts(userId: string) {
   const supabase = createSupabaseBrowser();
@@ -312,6 +402,22 @@ export async function createCommitmentContract(userId: string, contract: {
 
   if (error) {
     console.error('Error creating commitment contract:', error);
+    throw error;
+  }
+  return data;
+}
+
+export async function updateCommitmentStatus(id: string, status: 'completed' | 'failed') {
+  const supabase = createSupabaseBrowser();
+  const { data, error } = await supabase
+    .from('commitment_contracts')
+    .update({ status })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating commitment status:', error);
     throw error;
   }
   return data;
@@ -370,6 +476,22 @@ export async function deletePrimingCue(id: string) {
   }
 }
 
+export async function updatePrimingCue(id: string, updates: { active?: boolean }) {
+  const supabase = createSupabaseBrowser();
+  const { data, error } = await supabase
+    .from('priming_cues')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating priming cue:', error);
+    throw error;
+  }
+  return data;
+}
+
 // Self compassion
 export async function createSelfCompassionSession(userId: string, triggerReason: string | null, durationSeconds: number) {
   const supabase = createSupabaseBrowser();
@@ -421,6 +543,71 @@ export async function updateLootboxAvailability(userId: string, availableAt: Dat
   }
 }
 
+// Lootbox system
+export async function spinLootbox(userId: string) {
+  const supabase = createSupabaseBrowser();
+  
+  // Check if user can spin
+  const profile = await getUserProfile(userId);
+  if (!profile) throw new Error('Profile not found');
+
+  if (profile.lootbox_available_at && new Date(profile.lootbox_available_at) > new Date()) {
+    throw new Error('Lootbox on cooldown');
+  }
+
+  // Generate random reward
+  const rewards = [
+    { type: 'xp', weight: 40, payload: { amount: Math.floor(Math.random() * 50) + 10 } },
+    { type: 'badge', weight: 10, payload: { name: 'Lucky Star' } },
+    { type: 'theme', weight: 15, payload: { theme: 'ocean' } },
+    { type: 'streak_shield', weight: 15, payload: { days: 1 } },
+    { type: 'bonus_time', weight: 15, payload: { minutes: 15 } },
+    { type: 'mystery', weight: 5, payload: { surprise: true } },
+  ];
+
+  const totalWeight = rewards.reduce((sum, r) => sum + r.weight, 0);
+  let random = Math.random() * totalWeight;
+  
+  let selectedReward = rewards[0];
+  for (const reward of rewards) {
+    random -= reward.weight;
+    if (random <= 0) {
+      selectedReward = reward;
+      break;
+    }
+  }
+
+  // Save to history
+  const { error: historyError } = await supabase
+    .from('lootbox_history')
+    .insert({
+      user_id: userId,
+      reward_type: selectedReward.type,
+      reward_payload: selectedReward.payload,
+    })
+    .select()
+    .single();
+
+  if (historyError) throw historyError;
+
+  // Update cooldown
+  const nextAvailable = new Date();
+  nextAvailable.setHours(nextAvailable.getHours() + 24);
+
+  await updateUserProfile(userId, {
+    lootbox_available_at: nextAvailable.toISOString(),
+  });
+
+  // Apply reward
+  if (selectedReward.type === 'xp') {
+    await updateUserProfile(userId, {
+      total_xp: (profile.total_xp || 0) + selectedReward.payload.amount,
+    });
+  }
+
+  return selectedReward;
+}
+
 // Re-export other functions that don't need modification
 export {
   getUserRewards,
@@ -430,7 +617,6 @@ export {
   getOpenLoops,
   createOpenLoop,
   resumeOpenLoop,
-  spinLootbox,
   getLootboxHistory,
   createScheduledCue,
   updateScheduledCue,

@@ -129,12 +129,43 @@ export function SocialAccountability({
     setAccountabilityPartner(partnerId);
     
     // Symuluj powiadomienia partnera
-    const partnerActions = [
-      `${partnerId} właśnie ukończył 3 zadania. Twoja kolej.`,
-      `${partnerId} pyta: "Co dzisiaj zrobiłeś?"`,
-      `${partnerId} jest rozczarowany Twoimi wynikami`,
-      `${partnerId} wyprzedził Cię o 50 XP`,
-      `${partnerId}: "Nie odpuszczaj, patrzę na Ciebie"`
+    const partnerMessages: { [key: string]: string[] } = {
+      'Motywator Max': [
+        'Max: "Świetnie Ci idzie! Jeszcze jedno zadanie?"',
+        'Max: "Każde małe zadanie to krok do sukcesu!"',
+        'Max: "Pamiętaj - liczy się postęp, nie perfekcja"',
+        'Max: "Wow, twój streak rośnie! Tak trzymaj!"',
+        'Max: "Czas na przerwę? 5 minut i wracamy do akcji!"'
+      ],
+      'Surowa Sara': [
+        'Sara: "Przestań prokrastynować. Do roboty."',
+        'Sara: "Ile zadań dzisiaj? Mam nadzieję że więcej niż wczoraj."',
+        'Sara: "Bez wymówek. Działaj."',
+        'Sara: "Konkurencja nie śpi. Ty też nie powinieneś."',
+        'Sara: "Mniej planowania, więcej działania. TERAZ."'
+      ],
+      'Przyjaciel Piotr': [
+        'Piotr: "Hej, jak Ci idzie? Potrzebujesz pomocy?"',
+        'Piotr: "Pamiętaj żeby zrobić przerwę na kawę ☕"',
+        'Piotr: "Super że się starasz! Dumny jestem"',
+        'Piotr: "Może razem popracujemy? Razem raźniej!"',
+        'Piotr: "Nie przejmuj się jeśli coś nie wyszło, jutro nowy dzień"'
+      ],
+      'Trener Tom': [
+        'Tom: "10 pompek między zadaniami = lepsza koncentracja!"',
+        'Tom: "Technika Pomodoro: 25 min pracy, 5 min ruchu"',
+        'Tom: "Wyprostuj plecy! Produktywność zaczyna się od postawy"',
+        'Tom: "Cel na dziś: pobić wczorajszy rekord o 1 zadanie"',
+        'Tom: "Pamiętaj o wodzie! Nawodnienie = koncentracja"'
+      ]
+    };
+    
+    const partnerActions = partnerMessages[partnerId] || [
+      `${partnerId}: "Trzymam za Ciebie kciuki!"`,
+      `${partnerId}: "Jak postępy?"`,
+      `${partnerId}: "Nie poddawaj się!"`,
+      `${partnerId}: "Jestem z Tobą!"`,
+      `${partnerId}: "Dasz radę!"`
     ];
     
     // Losowe powiadomienia od partnera
@@ -280,25 +311,57 @@ export function SocialAccountability({
         {!accountabilityPartner ? (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Połącz się z kimś kto będzie Cię dopingował (i zawstydzał)
+              Ustaw wirtualnego partnera motywacyjnego
             </p>
-            <Input
-              placeholder="Email partnera"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  connectAccountabilityPartner(e.currentTarget.value);
-                }
-              }}
-            />
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => connectAccountabilityPartner('Motywator Max')}
+              >
+                Motywator Max
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => connectAccountabilityPartner('Surowa Sara')}
+              >
+                Surowa Sara
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => connectAccountabilityPartner('Przyjaciel Piotr')}
+              >
+                Przyjaciel Piotr
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => connectAccountabilityPartner('Trener Tom')}
+              >
+                Trener Tom
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Wybierz wirtualnego partnera, który będzie Cię motywował
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
-            <p className="text-sm">Połączony z: <strong>{accountabilityPartner}</strong></p>
+            <p className="text-sm">Twój partner: <strong>{accountabilityPartner}</strong></p>
             <div className="text-xs text-muted-foreground">
-              • Widzi Twoje postępy w czasie rzeczywistym<br/>
-              • Otrzymuje alerty gdy prokrastynujesz<br/>
-              • Może Cię publicznie zawstydzić
+              • Śledzi Twoje postępy<br/>
+              • Wysyła motywujące wiadomości<br/>
+              • Przypomina o zadaniach
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setAccountabilityPartner('')}
+            >
+              Zmień partnera
+            </Button>
           </div>
         )}
       </Card>

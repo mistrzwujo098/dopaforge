@@ -187,8 +187,8 @@ export function PhysicalIntegration({ userId, onPhysicalAction }: PhysicalIntegr
 
   return (
     <div className="space-y-4">
-      {/* Phone Integration */}
-      <Card className="p-4">
+      {/* Phone Integration - Currently disabled */}
+      {/* <Card className="p-4">
         <h3 className="font-semibold mb-3 flex items-center gap-2">
           <Smartphone className="h-5 w-5" />
           Integracja z Telefonem
@@ -210,10 +210,10 @@ export function PhysicalIntegration({ userId, onPhysicalAction }: PhysicalIntegr
             Tryb LOCKDOWN (telefon w szufladzie)
           </Button>
         </div>
-      </Card>
+      </Card> */}
 
-      {/* Wearable Integration */}
-      <Card className="p-4">
+      {/* Wearable Integration - Currently disabled */}
+      {/* <Card className="p-4">
         <h3 className="font-semibold mb-3 flex items-center gap-2">
           <Watch className="h-5 w-5" />
           Smartwatch / Fitness Band
@@ -230,7 +230,7 @@ export function PhysicalIntegration({ userId, onPhysicalAction }: PhysicalIntegr
             <span className="text-xs text-muted-foreground">Aktywne</span>
           </div>
         </div>
-      </Card>
+      </Card> */}
 
       {/* Physical Consequences */}
       <Card className="p-4 border-2 border-orange-500">

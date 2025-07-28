@@ -98,7 +98,7 @@ export function Lootbox({ onOpen, cooldownHours = 24, lastOpenedAt }: LootboxPro
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2">
             <Crown className="h-5 w-5 text-yellow-500" />
-            Daily Lootbox
+            Codzienna Skrzynka
             <Crown className="h-5 w-5 text-yellow-500" />
           </CardTitle>
         </CardHeader>
@@ -157,14 +157,14 @@ export function Lootbox({ onOpen, cooldownHours = 24, lastOpenedAt }: LootboxPro
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <p className="text-lg font-semibold mb-1">You won!</p>
+              <p className="text-lg font-semibold mb-1">Wygrałeś!</p>
               <p className="text-2xl font-bold text-primary">
                 {reward.type === 'xp' && `${reward.payload.amount} XP`}
                 {reward.type === 'badge' && `${reward.payload.name} Badge`}
-                {reward.type === 'theme' && 'New Theme Unlocked'}
-                {reward.type === 'streak_shield' && 'Streak Protection'}
-                {reward.type === 'bonus_time' && '+15 Min Focus Bonus'}
-                {reward.type === 'mystery' && 'Mystery Reward'}
+                {reward.type === 'theme' && 'Nowy Motyw Odblokowany'}
+                {reward.type === 'streak_shield' && 'Ochrona Serii'}
+                {reward.type === 'bonus_time' && '+15 Min Bonusu Skupienia'}
+                {reward.type === 'mystery' && 'Tajemnicza Nagroda'}
               </p>
             </motion.div>
           )}
@@ -186,7 +186,7 @@ export function Lootbox({ onOpen, cooldownHours = 24, lastOpenedAt }: LootboxPro
             ) : (
               <Gift className="mr-2 h-5 w-5" />
             )}
-            {isSpinning ? 'Spinning...' : isAvailable ? 'Open Lootbox' : `Available in ${getTimeRemaining()}`}
+            {isSpinning ? 'Losowanie...' : isAvailable ? 'Otwórz Skrzynkę' : `Dostępna za ${getTimeRemaining()}`}
           </Button>
         </CardContent>
       </Card>

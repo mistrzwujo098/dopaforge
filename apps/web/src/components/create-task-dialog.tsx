@@ -85,9 +85,23 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
       setShowAIBreakdown(true);
     } catch (error) {
       console.error('AI breakdown error:', error);
+      let errorMessage = 'Nie udało się wygenerować podziału zadania.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('AI service not configured')) {
+          errorMessage = 'Brak klucza API. Ustaw GEMINI_API_KEY w zmiennych środowiskowych.';
+        } else if (error.message.includes('Unauthorized')) {
+          errorMessage = 'Musisz być zalogowany aby używać AI.';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Zbyt wiele prób. Spróbuj ponownie za chwilę.';
+        } else if (error.message.includes('fetch')) {
+          errorMessage = 'Nie można połączyć z usługą AI. Sprawdź połączenie internetowe.';
+        }
+      }
+      
       toast({
         title: 'Błąd podziału AI',
-        description: 'Nie udało się wygenerować podziału zadania. Spróbuj ponownie.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

@@ -10,8 +10,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Card, CardContent } from '@dopaforge/ui';
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/useToast';
-import { updateTask, completeTask, checkAndGrantBadges, createOpenLoop, type Database } from '@dopaforge/db';
-import { supabase } from '@dopaforge/db';
+import { type Database } from '@dopaforge/db';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
+import { updateTask, completeTask } from '@/lib/db-client';
 import { Play, Pause, RotateCcw, CheckCircle } from 'lucide-react';
 import { DynamicConfetti } from '@/components/dynamic-imports';
 import useSound from 'use-sound';
@@ -49,14 +50,9 @@ export default function FocusPage({ params }: { params: { taskId: string } }) {
         if (awayTime > 30000) { // Away for more than 30 seconds
           handlePause();
           
-          // Create open loop (Zeigarnik effect)
-          if (task && user) {
-            await createOpenLoop(user.id, task.id);
-          }
-          
           toast({
-            title: 'Timer paused - Welcome back!',
-            description: 'Your task is waiting for you. Ready to continue?',
+            title: 'Timer wstrzymany - Witaj z powrotem!',
+            description: 'Twoje zadanie czeka. Gotowy do kontynuacji?',
             action: (
               <Button size="sm" onClick={handleResume}>
                 Resume
@@ -130,6 +126,7 @@ export default function FocusPage({ params }: { params: { taskId: string } }) {
 
   const loadTask = async () => {
     try {
+      const supabase = createSupabaseBrowser();
       const { data, error } = await supabase
         .from('micro_tasks')
         .select('*')
@@ -141,7 +138,7 @@ export default function FocusPage({ params }: { params: { taskId: string } }) {
       setTimeLeft(data.est_minutes * 60);
     } catch (error) {
       toast({
-        title: 'Error loading task',
+        title: 'Błąd ładowania zadania',
         variant: 'destructive',
       });
       router.push('/dashboard');
@@ -189,19 +186,19 @@ export default function FocusPage({ params }: { params: { taskId: string } }) {
     playComplete();
 
     try {
-      await completeTask(task.id, user.id);
-      const newBadges = await checkAndGrantBadges(user.id, task.est_minutes);
+      const result = await completeTask(task.id, user.id);
 
       toast({
-        title: '🎉 Task completed!',
-        description: `You earned ${task.est_minutes} XP`,
+        title: '🎉 Zadanie ukończone!',
+        description: `Zdobyłeś ${result.xpEarned} XP`,
       });
 
-      if (newBadges.length > 0) {
+      // Check for streak milestone
+      if (result.newStreak % 7 === 0 && result.newStreak > 0) {
         setTimeout(() => {
           toast({
-            title: '🏆 New badge unlocked!',
-            description: `You earned the ${newBadges[0]} badge`,
+            title: '🔥 Seria tygodniowa!',
+            description: `Niesamowite! ${result.newStreak} dni z rzędu!`,
           });
         }, 2000);
       }
@@ -211,7 +208,7 @@ export default function FocusPage({ params }: { params: { taskId: string } }) {
       }, 3000);
     } catch (error) {
       toast({
-        title: 'Error completing task',
+        title: 'Błąd ukończenia zadania',
         variant: 'destructive',
       });
     }

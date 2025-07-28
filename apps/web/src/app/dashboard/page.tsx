@@ -32,17 +32,17 @@ import {
   deleteImplementationIntention,
   getCommitmentContracts,
   createCommitmentContract,
+  updateCommitmentStatus,
   createSelfCompassionSession,
   getPrimingCues,
   createPrimingCue,
   deletePrimingCue,
   getScheduledCues,
+  spinLootbox,
+  updateImplementationIntention,
+  updatePrimingCue,
 } from '@/lib/db-client';
 import {
-  updateImplementationIntention,
-  spinLootbox,
-  updateCommitmentStatus,
-  updatePrimingCue,
   type Database,
 } from '@dopaforge/db';
 import { Trophy, Zap, Target, Calendar } from 'lucide-react';
@@ -116,12 +116,15 @@ export default function DashboardPage() {
       setScheduledCues(scheduledCuesData);
 
       // Check if user needs to do morning visualization
-      if (!futureSelfData) {
+      const todayDate = new Date().toDateString();
+      const lastVisualizationDate = localStorage.getItem('last_visualization_date');
+      if (!futureSelfData && lastVisualizationDate !== todayDate) {
         setShowFutureSelf(true);
       }
 
       // Check if it's Sunday and user needs weekly review
-      if (new Date().getDay() === 0 && needsReview) {
+      const lastReviewDate = localStorage.getItem('last_review_date');
+      if (new Date().getDay() === 0 && needsReview && lastReviewDate !== todayDate) {
         setShowWeeklyReview(true);
       }
     } catch (error) {
@@ -175,6 +178,11 @@ export default function DashboardPage() {
         });
       });
 
+      // Check if task was created successfully
+      if (!newTask) {
+        throw new Error('Nie udało się utworzyć zadania');
+      }
+
       observability.trackUserAction('task_created', { estMinutes });
 
       setTasks([...tasks, newTask]);
@@ -184,8 +192,10 @@ export default function DashboardPage() {
         description: `"${title}" dodane do Twojej listy`,
       });
     } catch (error) {
+      console.error('Error creating task:', error);
       toast({
         title: 'Błąd tworzenia zadania',
+        description: 'Sprawdź połączenie i spróbuj ponownie',
         variant: 'destructive',
       });
     }
@@ -232,6 +242,8 @@ export default function DashboardPage() {
     
     try {
       await createFutureSelf(user.id, visualization, feelings);
+      setShowFutureSelf(false); // Close the modal after successful submission
+      localStorage.setItem('last_visualization_date', new Date().toDateString()); // Save the date
       toast({
         title: 'Intencja ustalona',
         description: 'Twoja wizualizacja przyszłego ja została zapisana',
@@ -269,6 +281,8 @@ export default function DashboardPage() {
         });
       }
       
+      setShowWeeklyReview(false); // Close the modal
+      localStorage.setItem('last_review_date', new Date().toDateString()); // Save the date
       toast({
         title: 'Przegląd zakończony',
         description: 'Dziękujemy za Twoją opinię!',

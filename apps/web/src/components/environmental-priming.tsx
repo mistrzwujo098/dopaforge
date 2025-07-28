@@ -65,7 +65,7 @@ export function EnvironmentalPriming({
     const checkTimeCues = () => {
       const now = new Date();
       const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-      const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+      const currentDay = ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota'][now.getDay()];
 
       cues
         .filter(cue => cue.active && cue.cue_type === 'time')
@@ -148,7 +148,7 @@ export function EnvironmentalPriming({
     }
   };
 
-  const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const weekDays = ['poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota', 'niedziela'];
 
   return (
     <Card>

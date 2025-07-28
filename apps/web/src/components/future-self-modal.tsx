@@ -60,24 +60,24 @@ export function FutureSelfModal({ open, onClose, onSubmit }: FutureSelfModalProp
           >
             <Sunrise className="h-12 w-12 text-orange-500" />
           </motion.div>
-          <DialogTitle className="text-xl">Morning Visualization</DialogTitle>
+          <DialogTitle className="text-xl">Poranna Wizualizacja</DialogTitle>
           <DialogDescription>
-            Take a moment to connect with your future self. How will you feel at the end of today?
+            Poświęć chwilę, aby połączyć się ze swoim przyszłym ja. Jak będziesz się czuć na koniec dnia?
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4 relative">
           <div className="grid gap-2">
-            <Label htmlFor="visualization">Visualize your accomplished self</Label>
+            <Label htmlFor="visualization">Wyobraź sobie siebie po ukończonych zadaniach</Label>
             <textarea
               id="visualization"
-              placeholder="Imagine yourself at the end of today, having completed your tasks. What do you see? How do you feel?"
+              placeholder="Wyobraź sobie siebie na koniec dnia, po ukończeniu zadań. Co widzisz? Jak się czujesz?"
               value={visualization}
               onChange={(e) => setVisualization(e.target.value)}
               className="min-h-[100px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </div>
           <div className="grid gap-2">
-            <Label>Three feelings your future self will experience</Label>
+            <Label>Trzy uczucia, których doświadczy twoje przyszłe ja</Label>
             {feelings.map((feeling, index) => (
               <motion.input
                 key={index}
@@ -85,7 +85,7 @@ export function FutureSelfModal({ open, onClose, onSubmit }: FutureSelfModalProp
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: index * 0.1 }}
                 type="text"
-                placeholder={`Feeling ${index + 1} (e.g., proud, energized, peaceful)`}
+                placeholder={`Uczucie ${index + 1} (np. duma, energia, spokój)`}
                 value={feeling}
                 onChange={(e) => updateFeeling(index, e.target.value)}
                 className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -100,7 +100,7 @@ export function FutureSelfModal({ open, onClose, onSubmit }: FutureSelfModalProp
             onClick={onClose}
             disabled={loading}
           >
-            Skip for today
+            Pomiń na dziś
           </Button>
           <Button
             onClick={handleSubmit}
@@ -111,7 +111,7 @@ export function FutureSelfModal({ open, onClose, onSubmit }: FutureSelfModalProp
             }
             variant="gradient"
           >
-            {loading ? 'Saving...' : 'Set Intention'}
+            {loading ? 'Zapisywanie...' : 'Ustaw intencję'}
           </Button>
         </DialogFooter>
       </DialogContent>
