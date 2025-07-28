@@ -20,7 +20,7 @@ export default function OnboardingPage() {
         const checkOnboardingStatus = async () => {
           try {
             const profile = await getUserProfile(user.id);
-            if (profile?.has_completed_onboarding) {
+            if ((profile as any)?.has_completed_onboarding) {
               router.push('/dashboard');
               return;
             }

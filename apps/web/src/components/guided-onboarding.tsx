@@ -224,7 +224,7 @@ export function GuidedOnboarding({ userId }: { userId: string }) {
                         panic_threshold: localStorage.getItem('panic_threshold'),
                         commitment: commitment
                       }
-                    });
+                    } as any);
                     
                     router.push('/dashboard');
                   } catch (error) {

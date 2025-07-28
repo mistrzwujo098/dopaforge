@@ -139,45 +139,49 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    // Wait for user loading to complete
-    if (userLoading) return;
-    
-    // If no user, redirect to auth
-    if (!user) {
-      router.push('/auth');
-      return;
-    }
-    
-    // Sprawdź czy użytkownik przeszedł onboarding
-    // Najpierw sprawdź localStorage dla kompatybilności wstecznej
-    const hasCompletedOnboardingLocal = localStorage.getItem('onboarding_completed');
-    
-    // Pobierz profil użytkownika i sprawdź status onboardingu
-    try {
-      const userProfile = await getUserProfile(user.id);
-      if (!userProfile || !userProfile.has_completed_onboarding) {
-        // Jeśli użytkownik ma localStorage ale nie ma w bazie, zaktualizuj bazę
-        if (hasCompletedOnboardingLocal) {
-          await updateUserProfile(user.id, {
-            has_completed_onboarding: true,
-            onboarding_completed_at: new Date().toISOString()
-          });
-        } else {
-          // Przekieruj do onboardingu
+    const checkUserAndOnboarding = async () => {
+      // Wait for user loading to complete
+      if (userLoading) return;
+      
+      // If no user, redirect to auth
+      if (!user) {
+        router.push('/auth');
+        return;
+      }
+      
+      // Sprawdź czy użytkownik przeszedł onboarding
+      // Najpierw sprawdź localStorage dla kompatybilności wstecznej
+      const hasCompletedOnboardingLocal = localStorage.getItem('onboarding_completed');
+      
+      // Pobierz profil użytkownika i sprawdź status onboardingu
+      try {
+        const userProfile = await getUserProfile(user.id);
+        if (!userProfile || !(userProfile as any).has_completed_onboarding) {
+          // Jeśli użytkownik ma localStorage ale nie ma w bazie, zaktualizuj bazę
+          if (hasCompletedOnboardingLocal) {
+            await updateUserProfile(user.id, {
+              has_completed_onboarding: true,
+              onboarding_completed_at: new Date().toISOString()
+            } as any);
+          } else {
+            // Przekieruj do onboardingu
+            router.push('/onboarding');
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+        // W przypadku błędu, sprawdź tylko localStorage
+        if (!hasCompletedOnboardingLocal) {
           router.push('/onboarding');
           return;
         }
       }
-    } catch (error) {
-      console.error('Error checking onboarding status:', error);
-      // W przypadku błędu, sprawdź tylko localStorage
-      if (!hasCompletedOnboardingLocal) {
-        router.push('/onboarding');
-        return;
-      }
-    }
+      
+      loadData();
+    };
     
-    loadData();
+    checkUserAndOnboarding();
   }, [user, userLoading, router]);
 
   // Enable real-time sync
