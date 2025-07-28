@@ -119,14 +119,31 @@ export default function DashboardPage() {
       // Check if user needs to do morning visualization
       const todayDate = new Date().toDateString();
       const lastVisualizationDate = localStorage.getItem('last_visualization_date');
-      if (!futureSelfData && lastVisualizationDate !== todayDate) {
-        setShowFutureSelf(true);
+      const lastVisualizationDismissed = localStorage.getItem('last_visualization_dismissed');
+      const dismissedToday = lastVisualizationDismissed === todayDate;
+      
+      // Show only if: no data today, not dismissed today, and not shown in last hour
+      if (!futureSelfData && lastVisualizationDate !== todayDate && !dismissedToday) {
+        const lastShown = localStorage.getItem('last_visualization_shown');
+        const hourAgo = Date.now() - 60 * 60 * 1000;
+        if (!lastShown || parseInt(lastShown) < hourAgo) {
+          setShowFutureSelf(true);
+          localStorage.setItem('last_visualization_shown', Date.now().toString());
+        }
       }
 
       // Check if it's Sunday and user needs weekly review
       const lastReviewDate = localStorage.getItem('last_review_date');
-      if (new Date().getDay() === 0 && needsReview && lastReviewDate !== todayDate) {
-        setShowWeeklyReview(true);
+      const lastReviewDismissed = localStorage.getItem('last_review_dismissed');
+      const reviewDismissedToday = lastReviewDismissed === todayDate;
+      
+      if (new Date().getDay() === 0 && needsReview && lastReviewDate !== todayDate && !reviewDismissedToday) {
+        const lastReviewShown = localStorage.getItem('last_review_shown');
+        const hourAgo = Date.now() - 60 * 60 * 1000;
+        if (!lastReviewShown || parseInt(lastReviewShown) < hourAgo) {
+          setShowWeeklyReview(true);
+          localStorage.setItem('last_review_shown', Date.now().toString());
+        }
       }
     } catch (error) {
       toast({
@@ -413,13 +430,21 @@ export default function DashboardPage() {
 
       <DynamicFutureSelfModal
         open={showFutureSelf}
-        onClose={() => setShowFutureSelf(false)}
+        onClose={() => {
+          setShowFutureSelf(false);
+          // Zapisz że użytkownik zamknął popup dzisiaj
+          localStorage.setItem('last_visualization_dismissed', new Date().toDateString());
+        }}
         onSubmit={handleFutureSelfSubmit}
       />
 
       <DynamicWeeklyReviewModal
         open={showWeeklyReview}
-        onClose={() => setShowWeeklyReview(false)}
+        onClose={() => {
+          setShowWeeklyReview(false);
+          // Zapisz że użytkownik zamknął popup dzisiaj
+          localStorage.setItem('last_review_dismissed', new Date().toDateString());
+        }}
         onSubmit={handleWeeklyReviewSubmit}
         weekStats={{
           tasksCompleted: completedTasks.length,

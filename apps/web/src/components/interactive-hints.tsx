@@ -89,11 +89,25 @@ export function InteractiveHints() {
       setIdleTime(prev => {
         const newTime = prev + 1;
         
-        // Po 30 sekundach bezczynności pokaż podpowiedź
-        if (newTime === 30) {
-          const idleHints = hints.filter(h => h.trigger === 'idle' && !dismissedHints.includes(h.id));
-          if (idleHints.length > 0) {
-            setActiveHint(idleHints[0].id);
+        // Zwiększ czas do 2 minut bezczynności i sprawdź cooldown
+        if (newTime === 120) { // 2 minuty zamiast 30 sekund
+          const savedData = localStorage.getItem('dismissedHints');
+          let lastDismissed = 0;
+          
+          if (savedData) {
+            try {
+              const parsed = JSON.parse(savedData);
+              lastDismissed = parsed.lastDismissed || 0;
+            } catch {}
+          }
+          
+          // Pokazuj tylko jeśli minęło 30 minut od ostatniego zamknięcia
+          const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
+          if (lastDismissed < thirtyMinutesAgo) {
+            const idleHints = hints.filter(h => h.trigger === 'idle' && !dismissedHints.includes(h.id));
+            if (idleHints.length > 0) {
+              setActiveHint(idleHints[0].id);
+            }
           }
         }
         
@@ -119,14 +133,28 @@ export function InteractiveHints() {
 
   // Pokaż podpowiedzi dla pierwszej wizyty
   useEffect(() => {
+    // Załaduj zapisane dane
+    const savedData = localStorage.getItem('dismissedHints');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (Array.isArray(parsed)) {
+          setDismissedHints(parsed);
+        } else if (parsed.hints) {
+          setDismissedHints(parsed.hints);
+        }
+      } catch {}
+    }
+    
     const firstVisitHints = hints.filter(
       h => h.trigger === 'first-visit' && !dismissedHints.includes(h.id)
     );
     
     if (firstVisitHints.length > 0) {
+      // Zwiększ opóźnienie do 3 sekund
       setTimeout(() => {
         setActiveHint(firstVisitHints[0].id);
-      }, 1000);
+      }, 3000);
     }
   }, []);
 
@@ -164,9 +192,16 @@ export function InteractiveHints() {
   }, [dismissedHints]);
 
   const dismissHint = (hintId: string) => {
-    setDismissedHints(prev => [...prev, hintId]);
+    const newDismissed = [...dismissedHints, hintId];
+    setDismissedHints(newDismissed);
     setActiveHint(null);
-    localStorage.setItem('dismissedHints', JSON.stringify([...dismissedHints, hintId]));
+    
+    // Zapisz z timestampem
+    const dismissData = {
+      hints: newDismissed,
+      lastDismissed: Date.now()
+    };
+    localStorage.setItem('dismissedHints', JSON.stringify(dismissData));
   };
 
   const currentHint = hints.find(h => h.id === activeHint);
