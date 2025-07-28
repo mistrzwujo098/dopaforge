@@ -4,8 +4,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@dopaforge/ui';
-import { Clock, GripVertical, Play, Check } from 'lucide-react';
+import { Clock, GripVertical, Play, Check, Sparkles } from 'lucide-react';
 import type { Database } from '@dopaforge/db';
+import { t } from '@/lib/i18n';
+import { cardHover, buttonHover, successAnimation } from '@/lib/animations';
 
 type Task = Database['public']['Tables']['micro_tasks']['Row'];
 
@@ -25,15 +27,15 @@ export function TaskCard({ task, onStart, onComplete, isDragging }: TaskCardProp
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: isDragging ? 0.5 : 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      whileHover={{ scale: 1.02 }}
+      {...cardHover}
       transition={{ duration: 0.2 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
     >
-      <Card className={`relative overflow-hidden ${isCompleted ? 'opacity-60' : ''}`}>
+      <Card className={`relative overflow-hidden transition-all ${isCompleted ? 'opacity-60 bg-gray-50 dark:bg-gray-900' : ''}`}>
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <div className="cursor-move" aria-label="Przeciągnij, aby zmienić kolejność">
+            <div className="cursor-move" aria-label={t('dashboard.dragToReorder')}>
               <GripVertical className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             </div>
             <div className="flex-1">
@@ -46,30 +48,45 @@ export function TaskCard({ task, onStart, onComplete, isDragging }: TaskCardProp
               </div>
             </div>
             <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              {...buttonHover}
               onClick={() => isCompleted ? null : onStart(task.id)}
-              className={`p-2 rounded-full ${
+              className={`p-2 rounded-full transition-colors ${
                 isCompleted 
                   ? 'bg-green-100 text-green-600 cursor-default' 
                   : 'bg-primary/10 text-primary hover:bg-primary/20'
               }`}
               disabled={isCompleted}
-              aria-label={isCompleted ? 'Zadanie ukończone' : 'Rozpocznij zadanie'}
+              aria-label={isCompleted ? t('dashboard.taskCompleted') : t('dashboard.startTask')}
             >
               {isCompleted ? (
-                <Check className="h-4 w-4" aria-hidden="true" />
+                <motion.div {...successAnimation}>
+                  <Check className="h-4 w-4" aria-hidden="true" />
+                </motion.div>
               ) : (
-                <Play className="h-4 w-4" aria-hidden="true" />
+                <motion.div
+                  animate={isHovered ? { rotate: 15 } : { rotate: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Play className="h-4 w-4" aria-hidden="true" />
+                </motion.div>
               )}
             </motion.button>
           </div>
           {isHovered && !isCompleted && (
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              className="absolute bottom-0 left-0 right-0 h-1 bg-dopamine-gradient origin-left"
-            />
+            <>
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                className="absolute bottom-0 left-0 right-0 h-1 bg-dopamine-gradient origin-left"
+              />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.5 }}
+                className="absolute top-2 right-2"
+              >
+                <Sparkles className="h-3 w-3 text-primary" />
+              </motion.div>
+            </>
           )}
         </CardContent>
       </Card>

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
 import { getUserProfile, getTaskStats } from '@/lib/db-client';
+import { t } from '@/lib/i18n';
 
 interface Stats {
   totalTasks: number;
@@ -56,7 +57,7 @@ export default function StatsPage() {
         const level = Math.floor((profile.total_xp || 0) / 100) + 1;
         
         // Mock weekly progress data (in production, this would come from DB)
-        const weekDays = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
+        const weekDays = [t('common.monday'), t('common.tuesday'), t('common.wednesday'), t('common.thursday'), t('common.friday'), t('common.saturday'), t('common.sunday')];
         const today = new Date();
         const weeklyProgress = weekDays.map((day, index) => {
           const daysAgo = (today.getDay() + 6 - index) % 7;
@@ -113,43 +114,43 @@ export default function StatsPage() {
   if (!stats) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Brak danych do wyświetlenia</p>
+        <p className="text-muted-foreground">{t('stats.noData')}</p>
       </div>
     );
   }
 
   const statCards = [
     {
-      title: 'Całkowite XP',
+      title: t('stats.totalXP'),
       value: stats.totalXP,
       icon: Zap,
       color: 'text-yellow-500',
       bgColor: 'bg-yellow-50 dark:bg-yellow-950/20',
-      description: `Poziom ${stats.level}`
+      description: t('stats.level', { level: stats.level })
     },
     {
-      title: 'Ukończone zadania',
+      title: t('stats.completedTasks'),
       value: `${stats.completedTasks}/${stats.totalTasks}`,
       icon: CheckCircle2,
       color: 'text-emerald-500',
       bgColor: 'bg-emerald-50 dark:bg-emerald-950/20',
-      description: `${stats.completionRate}% skuteczności`
+      description: t('stats.completionRate', { rate: stats.completionRate })
     },
     {
-      title: 'Czas skupienia',
+      title: t('stats.focusTime'),
       value: `${Math.floor(stats.totalMinutes / 60)}h ${stats.totalMinutes % 60}m`,
       icon: Clock,
       color: 'text-blue-500',
       bgColor: 'bg-blue-50 dark:bg-blue-950/20',
-      description: `Średnio ${stats.averageTaskDuration} min/zadanie`
+      description: t('stats.avgTaskDuration', { minutes: stats.averageTaskDuration })
     },
     {
-      title: 'Seria dni',
+      title: t('stats.currentStreak'),
       value: stats.currentStreak,
       icon: Calendar,
       color: 'text-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-950/20',
-      description: `Najdłuższa: ${stats.longestStreak} dni`
+      description: t('stats.longestStreak', { days: stats.longestStreak })
     }
   ];
 
@@ -161,8 +162,8 @@ export default function StatsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Twoje statystyki</h1>
-          <p className="text-muted-foreground">Śledź swoje postępy i odkrywaj wzorce produktywności</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('stats.title')}</h1>
+          <p className="text-muted-foreground">{t('stats.subtitle')}</p>
         </motion.div>
 
         {/* Key Stats Grid */}
@@ -213,10 +214,10 @@ export default function StatsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="h-5 w-5" />
-                Aktywność w tym tygodniu
+                {t('stats.weeklyActivity')}
               </CardTitle>
               <CardDescription>
-                Twoja codzienna produktywność
+                {t('stats.dailyProductivity')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -230,7 +231,7 @@ export default function StatsPage() {
                       className="w-full bg-gradient-to-t from-emerald-500 to-cyan-500 rounded-t-lg relative group cursor-pointer"
                     >
                       <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        {day.tasks} zadań • {day.minutes} min
+                        {day.tasks} {t('stats.tasksCount')} • {day.minutes} {t('common.minutes')}
                       </div>
                     </motion.div>
                     <span className="text-xs text-muted-foreground">{day.day}</span>
@@ -252,10 +253,10 @@ export default function StatsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
-                  Najlepsze godziny pracy
+                  {t('stats.topWorkingHours')}
                 </CardTitle>
                 <CardDescription>
-                  Kiedy jesteś najbardziej produktywny
+                  {t('stats.whenMostProductive')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -291,10 +292,10 @@ export default function StatsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Trophy className="h-5 w-5" />
-                  Osiągnięcia
+                  {t('stats.achievements')}
                 </CardTitle>
                 <CardDescription>
-                  Twoje kamienie milowe
+                  {t('stats.milestones')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -304,8 +305,8 @@ export default function StatsPage() {
                       <Zap className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">Początkujący</p>
-                      <p className="text-sm text-muted-foreground">Ukończ 10 zadań</p>
+                      <p className="font-medium">{t('stats.beginner')}</p>
+                      <p className="text-sm text-muted-foreground">{t('stats.beginnerDesc')}</p>
                     </div>
                     <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                   </div>
@@ -315,14 +316,14 @@ export default function StatsPage() {
                       <Target className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">Skupiony</p>
-                      <p className="text-sm text-muted-foreground">100 minut skupienia</p>
+                      <p className="font-medium">{t('stats.focused')}</p>
+                      <p className="text-sm text-muted-foreground">{t('stats.focusedDesc')}</p>
                     </div>
                     {stats.totalMinutes >= 100 ? (
                       <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                     ) : (
                       <div className="text-sm text-muted-foreground">
-                        {100 - stats.totalMinutes} min do odblokowania
+                        {t('stats.minutesToUnlock', { count: 100 - stats.totalMinutes })}
                       </div>
                     )}
                   </div>
@@ -332,14 +333,14 @@ export default function StatsPage() {
                       <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">Systematyczny</p>
-                      <p className="text-sm text-muted-foreground">7 dni z rzędu</p>
+                      <p className="font-medium">{t('stats.systematic')}</p>
+                      <p className="text-sm text-muted-foreground">{t('stats.systematicDesc')}</p>
                     </div>
                     {stats.currentStreak >= 7 ? (
                       <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                     ) : (
                       <div className="text-sm text-muted-foreground">
-                        {7 - stats.currentStreak} dni do odblokowania
+                        {t('stats.daysToUnlock', { count: 7 - stats.currentStreak })}
                       </div>
                     )}
                   </div>

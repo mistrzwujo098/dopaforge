@@ -14,6 +14,7 @@ import { useThemeStore } from '@/stores/theme';
 import { getUserProfile, updateUserProfile } from '@dopaforge/db';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { Moon, Sun, Bell, LogOut } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
@@ -88,8 +89,8 @@ export default function SettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Ustawienia</h1>
-          <p className="text-muted-foreground">Spersonalizuj DopaForge według swoich potrzeb</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('settings.title')}</h1>
+          <p className="text-muted-foreground">{t('settings.subtitle')}</p>
         </motion.div>
 
         <div className="space-y-6">
@@ -100,17 +101,17 @@ export default function SettingsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Wygląd</CardTitle>
-                <CardDescription>Dostosuj wygląd DopaForge</CardDescription>
+                <CardTitle>{t('settings.appearance')}</CardTitle>
+                <CardDescription>{t('settings.appearanceDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="dark-mode" className="text-base">
-                      Tryb ciemny
+                      {t('settings.darkTheme')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Przełącz między jasnym a ciemnym motywem
+                      {t('settings.darkThemeDesc')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -137,17 +138,17 @@ export default function SettingsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Powiadomienia</CardTitle>
-                <CardDescription>Zarządzaj swoimi preferencjami powiadomień</CardDescription>
+                <CardTitle>{t('settings.notifications')}</CardTitle>
+                <CardDescription>{t('settings.notificationsDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="break-reminder" className="text-base">
-                      Przypomnienia o przerwach
+                      {t('settings.breakReminders')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Otrzymuj przypomnienia o przerwach co 90 minut
+                      {t('settings.breakRemindersDesc')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -163,10 +164,10 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between pt-4">
                   <div className="space-y-0.5">
                     <Label htmlFor="sound-effects" className="text-base">
-                      Efekty dźwiękowe
+                      {t('settings.enableSounds')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Dźwięki przy ukończeniu zadań i nagrodach
+                      {t('settings.soundsDesc')}
                     </p>
                   </div>
                   <Switch
@@ -179,10 +180,10 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between pt-4">
                   <div className="space-y-0.5">
                     <Label htmlFor="task-notifications" className="text-base">
-                      Powiadomienia o zadaniach
+                      {t('settings.taskNotifications')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Przypomnienia o zaplanowanych zadaniach
+                      {t('settings.taskNotificationsDesc')}
                     </p>
                   </div>
                   <Switch
@@ -202,17 +203,17 @@ export default function SettingsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Produktywność</CardTitle>
-                <CardDescription>Dostosuj funkcje wspierające produktywność</CardDescription>
+                <CardTitle>{t('settings.productivity')}</CardTitle>
+                <CardDescription>{t('settings.productivityDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="motivational-quotes" className="text-base">
-                      Cytaty motywacyjne
+                      {t('settings.motivationalQuotes')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Wyświetlaj inspirujące cytaty w interfejsie
+                      {t('settings.motivationalQuotesDesc')}
                     </p>
                   </div>
                   <Switch
@@ -225,10 +226,10 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between pt-4">
                   <div className="space-y-0.5">
                     <Label htmlFor="auto-save" className="text-base">
-                      Automatyczny zapis
+                      {t('settings.autoSave')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Zapisuj szkice zadań automatycznie
+                      {t('settings.autoSaveDesc')}
                     </p>
                   </div>
                   <Switch
@@ -241,10 +242,10 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between pt-4">
                   <div className="space-y-0.5">
                     <Label htmlFor="week-start" className="text-base">
-                      Tydzień zaczyna się w poniedziałek
+                      {t('settings.weekStartsMonday')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Ustaw początek tygodnia w kalendarzu
+                      {t('settings.weekStartsMondayDesc')}
                     </p>
                   </div>
                   <Switch
@@ -264,30 +265,30 @@ export default function SettingsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Konto</CardTitle>
-                <CardDescription>Zarządzaj ustawieniami konta</CardDescription>
+                <CardTitle>{t('settings.account')}</CardTitle>
+                <CardDescription>{t('settings.accountDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <p className="text-sm font-medium">Email</p>
+                      <p className="text-sm font-medium">{t('settings.email')}</p>
                       <p className="text-sm text-muted-foreground">{user?.email}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <p className="text-sm font-medium">ID użytkownika</p>
+                      <p className="text-sm font-medium">{t('settings.userId')}</p>
                       <p className="text-sm text-muted-foreground font-mono">{user?.id.slice(0, 8)}...</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <p className="text-sm font-medium">Data dołączenia</p>
+                      <p className="text-sm font-medium">{t('settings.joinDate')}</p>
                       <p className="text-sm text-muted-foreground">
-                        {user?.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'Nieznana'}
+                        {user?.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : t('common.unknown')}
                       </p>
                     </div>
                   </div>
@@ -299,7 +300,7 @@ export default function SettingsPage() {
                     variant="outline"
                     className="w-full"
                   >
-                    Eksportuj moje dane
+                    {t('settings.exportData')}
                   </Button>
                   <Button
                     onClick={handleSignOut}
@@ -308,7 +309,7 @@ export default function SettingsPage() {
                     className="w-full"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    {loading ? 'Wylogowywanie...' : 'Wyloguj się'}
+                    {loading ? t('settings.signingOut') : t('common.logout')}
                   </Button>
                 </div>
               </CardContent>
@@ -322,8 +323,8 @@ export default function SettingsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Prywatność i bezpieczeństwo</CardTitle>
-                <CardDescription>Zarządzaj swoimi danymi i prywatnością</CardDescription>
+                <CardTitle>{t('settings.privacySecurity')}</CardTitle>
+                <CardDescription>{t('settings.privacySecurityDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -332,21 +333,21 @@ export default function SettingsPage() {
                     variant="outline"
                     className="w-full justify-start"
                   >
-                    Polityka prywatności
+                    {t('settings.privacyPolicy')}
                   </Button>
                   <Button
                     onClick={() => router.push('/terms')}
                     variant="outline"
                     className="w-full justify-start"
                   >
-                    Warunki korzystania
+                    {t('common.terms')}
                   </Button>
                   <Button
                     onClick={() => router.push('/help')}
                     variant="outline"
                     className="w-full justify-start"
                   >
-                    Centrum pomocy
+                    {t('settings.helpCenter')}
                   </Button>
                 </div>
               </CardContent>

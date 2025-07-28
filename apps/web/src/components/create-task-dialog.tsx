@@ -27,6 +27,8 @@ import {
 import { Plus, Sparkles, Clock, Zap, Brain } from 'lucide-react';
 import { breakdownTask } from '@/lib/ai-client';
 import { useToast } from '@/hooks/useToast';
+import { t } from '@/lib/i18n';
+import { buttonHover, popIn, slideUp } from '@/lib/animations';
 
 interface CreateTaskDialogProps {
   onCreateTask: (title: string, estMinutes: number) => Promise<void>;
@@ -45,6 +47,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
   const [title, setTitle] = useState('');
   const [estMinutes, setEstMinutes] = useState([30]);
   const [loading, setLoading] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const { toast } = useToast();
   
   // AI task breakdown state
@@ -119,8 +122,8 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
       }
       
       toast({
-        title: 'Zadania utworzone!',
-        description: `Pomyślnie utworzono ${tasksToCreate.length} ${tasksToCreate.length === 1 ? 'mikro-zadanie' : tasksToCreate.length < 5 ? 'mikro-zadania' : 'mikro-zadań'}`,
+        title: t('dashboard.tasksCreated'),
+        description: t('dashboard.tasksCreatedDesc', { count: tasksToCreate.length }),
       });
       
       // Reset dialog
@@ -133,8 +136,8 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
     } catch (error) {
       console.error('Error creating tasks:', error);
       toast({
-        title: 'Błąd',
-        description: 'Nie udało się utworzyć niektórych zadań. Spróbuj ponownie.',
+        title: t('common.error'),
+        description: t('dashboard.tasksCreateError'),
         variant: 'destructive',
       });
     } finally {
@@ -155,22 +158,32 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button variant="gradient" size="lg" className="shadow-lg" data-hint="create-task">
-            <Plus className="mr-2 h-5 w-5" />
-            Nowe Mikro Zadanie
+        <motion.div 
+          {...buttonHover}
+          onHoverStart={() => setIsHovered(true)}
+          onHoverEnd={() => setIsHovered(false)}
+        >
+          <Button variant="gradient" size="lg" className="shadow-lg hover:shadow-xl transition-shadow" data-hint="create-task">
+            <motion.div
+              animate={{ rotate: isHovered ? 90 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="mr-2"
+            >
+              <Plus className="h-5 w-5" />
+            </motion.div>
+            {t('dashboard.newMicroTask')}
           </Button>
         </motion.div>
       </DialogTrigger>
       <DialogContent className={showAIBreakdown ? "sm:max-w-[600px]" : "sm:max-w-[425px]"}>
         <DialogHeader>
           <DialogTitle>
-            {showAIBreakdown ? 'Zadania wygenerowane przez AI' : 'Utwórz Mikro Zadanie'}
+            {showAIBreakdown ? t('dashboard.aiGeneratedTasks') : t('dashboard.createMicroTask')}
           </DialogTitle>
           <DialogDescription>
             {showAIBreakdown 
-              ? 'Wybierz zadania, które chcesz utworzyć'
-              : 'Podziel swoją pracę na małe, skoncentrowane zadania (≤ 90 min)'
+              ? t('dashboard.selectTasksToCreate')
+              : t('dashboard.splitWorkDesc')
             }
           </DialogDescription>
         </DialogHeader>
@@ -179,10 +192,10 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
           <>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="title">Tytuł zadania</Label>
+                <Label htmlFor="title">{t('dashboard.taskTitle')}</Label>
                 <Input
                   id="title"
-                  placeholder="np. Napisz wstęp do propozycji projektu"
+                  placeholder={t('dashboard.taskPlaceholderExtended')}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onKeyDown={(e) => {
@@ -190,7 +203,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                       handleCreate();
                     }
                   }}
-                  aria-label="Tytuł zadania"
+                  aria-label={t('dashboard.taskTitle')}
                   aria-required="true"
                   autoFocus
                 />
@@ -198,7 +211,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
               
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="minutes">Szacowany czas</Label>
+                  <Label htmlFor="minutes">{t('dashboard.estimatedTime')}</Label>
                   <span className="text-sm font-medium">{estMinutes[0]} min</span>
                 </div>
                 <Slider
@@ -209,7 +222,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                   value={estMinutes}
                   onValueChange={setEstMinutes}
                   className="w-full"
-                  aria-label="Szacowany czas w minutach"
+                  aria-label={t('dashboard.estimatedTimeMinutes')}
                   aria-valuemin={15}
                   aria-valuemax={90}
                   aria-valuenow={estMinutes[0]}
@@ -224,12 +237,12 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
               <div className="border-t pt-4 space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <span>Podział zadania przez AI</span>
+                  <span>{t('dashboard.aiTaskBreakdown')}</span>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-2">
-                    <Label htmlFor="energy">Twój poziom energii</Label>
+                    <Label htmlFor="energy">{t('dashboard.yourEnergyLevel')}</Label>
                     <Select value={energyLevel} onValueChange={(value: any) => setEnergyLevel(value)}>
                       <SelectTrigger id="energy">
                         <SelectValue />
@@ -238,19 +251,19 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                         <SelectItem value="low">
                           <div className="flex items-center gap-2">
                             <Zap className="h-3 w-3" />
-                            Niski
+                            {t('dashboard.energyLow')}
                           </div>
                         </SelectItem>
                         <SelectItem value="medium">
                           <div className="flex items-center gap-2">
                             <Zap className="h-3 w-3" />
-                            Średni
+                            {t('dashboard.energyMedium')}
                           </div>
                         </SelectItem>
                         <SelectItem value="high">
                           <div className="flex items-center gap-2">
                             <Zap className="h-3 w-3" />
-                            Wysoki
+                            {t('dashboard.energyHigh')}
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -258,7 +271,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                   </div>
                   
                   <div className="grid gap-2">
-                    <Label htmlFor="time">Dostępny czas</Label>
+                    <Label htmlFor="time">{t('dashboard.availableTime')}</Label>
                     <div className="flex items-center gap-2">
                       <Slider
                         id="time"
@@ -283,7 +296,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 onClick={() => setOpen(false)}
                 disabled={loading || aiLoading}
               >
-                Anuluj
+                {t('common.cancel')}
               </Button>
               <Button
                 type="button"
@@ -294,12 +307,12 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 {aiLoading ? (
                   <>
                     <Brain className="mr-2 h-4 w-4 animate-pulse" />
-                    Analizowanie...
+                    {t('dashboard.analyzing')}
                   </>
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Podział AI
+                    {t('dashboard.aiBreakdown')}
                   </>
                 )}
               </Button>
@@ -308,7 +321,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 disabled={!title.trim() || loading || aiLoading}
                 variant="gradient"
               >
-                {loading ? 'Tworzenie...' : 'Utwórz zadanie'}
+                {loading ? t('dashboard.creating') : t('dashboard.createTask')}
               </Button>
             </DialogFooter>
           </>
@@ -341,7 +354,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                                 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
                                 : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                             }`}>
-                              {task.difficulty === 'easy' ? 'łatwe' : task.difficulty === 'medium' ? 'średnie' : 'trudne'}
+                              {t(`dashboard.difficulty${task.difficulty.charAt(0).toUpperCase() + task.difficulty.slice(1)}`)}
                             </span>
                             <span className="text-xs text-muted-foreground flex items-center gap-1">
                               <Clock className="h-3 w-3" />
@@ -368,7 +381,7 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 }}
                 disabled={loading}
               >
-                Wstecz
+                {t('common.back')}
               </Button>
               <Button
                 onClick={handleCreateSelectedTasks}
@@ -376,8 +389,8 @@ export function CreateTaskDialog({ onCreateTask }: CreateTaskDialogProps) {
                 variant="gradient"
               >
                 {loading 
-                  ? 'Tworzenie...' 
-                  : `Utwórz ${selectedTasks.size} ${selectedTasks.size === 1 ? 'zadanie' : selectedTasks.size < 5 ? 'zadania' : 'zadań'}`
+                  ? t('dashboard.creating') 
+                  : t('dashboard.createNTasks', { count: selectedTasks.size })
                 }
               </Button>
             </DialogFooter>

@@ -8,6 +8,8 @@ import { Toaster } from '@/components/toaster';
 import { ObservabilityProvider } from '@/components/observability-provider';
 import { SupabaseProvider } from '@/components/supabase-provider';
 import { PerformanceReporter } from '@/components/performance-reporter';
+import { PWAProvider } from '@/components/pwa-provider';
+import { OfflineIndicator } from '@/components/offline-indicator';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -139,22 +141,14 @@ export default function RootLayout({
         </a>
         <ObservabilityProvider>
           <SupabaseProvider>
-            <PerformanceReporter />
-            {children}
+            <PWAProvider>
+              <OfflineIndicator />
+              <PerformanceReporter />
+              {children}
+            </PWAProvider>
           </SupabaseProvider>
         </ObservabilityProvider>
         <Toaster />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js');
-                });
-              }
-            `,
-          }}
-        />
       </body>
     </html>
   );

@@ -46,6 +46,7 @@ import {
   type Database,
 } from '@dopaforge/db';
 import { Trophy, Zap, Target, Calendar } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import {
   DynamicConfetti,
   DynamicDragDropWrapper,
@@ -71,8 +72,12 @@ import {
 } from '@/components/dynamic-imports';
 import { ProgressiveDiscovery } from '@/components/feature-discovery/progressive-discovery';
 import { NotificationPermission } from '@/components/notification-permission';
+import { OnboardingFlow } from '@/components/onboarding';
 import { observability } from '@/lib/observability';
 import { migrateUserDataFromLocalStorage, isDataMigrated } from '@/lib/migrate-from-localstorage';
+import { LevelProgress } from '@/components/level-progress';
+import { FeedbackDialog } from '@/components/feedback-dialog';
+import { SatisfactionSurvey } from '@/components/satisfaction-survey';
 // Removed direct imports - using dynamic imports instead
 
 type Task = Database['public']['Tables']['micro_tasks']['Row'];
@@ -86,6 +91,7 @@ export default function DashboardPage() {
   const [showFutureSelf, setShowFutureSelf] = useState(false);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const [showSelfCompassion, setShowSelfCompassion] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [intentions, setIntentions] = useState<any[]>([]);
   const [contracts, setContracts] = useState<any[]>([]);
   const [primingCues, setPrimingCues] = useState<any[]>([]);
@@ -188,17 +194,15 @@ export default function DashboardPage() {
               onboarding_completed_at: new Date().toISOString()
             } as any);
           } else {
-            // Przekieruj do onboardingu
-            router.push('/onboarding');
-            return;
+            // Pokaż modal onboardingu
+            setShowOnboarding(true);
           }
         }
       } catch (error) {
         console.error('Error checking onboarding status:', error);
         // W przypadku błędu, sprawdź tylko localStorage
         if (!hasCompletedOnboardingLocal) {
-          router.push('/onboarding');
-          return;
+          setShowOnboarding(true);
         }
       }
       
@@ -383,6 +387,33 @@ export default function DashboardPage() {
     }
   };
 
+  const handleOnboardingComplete = async () => {
+    if (!user) return;
+    
+    try {
+      // Update user profile to mark onboarding as completed
+      await updateUserProfile(user.id, {
+        has_completed_onboarding: true,
+        onboarding_completed_at: new Date().toISOString()
+      } as any);
+      
+      setShowOnboarding(false);
+      await loadData(); // Reload data to refresh the view
+      
+      toast({
+        title: '🎉 Witaj w DopaForge!',
+        description: 'Twoja przygoda z produktywnością właśnie się zaczyna!',
+      });
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      toast({
+        title: 'Błąd',
+        description: 'Nie udało się zapisać postępu onboardingu',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading || userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -471,6 +502,15 @@ export default function DashboardPage() {
       />
 
       <NotificationPermission />
+      <SatisfactionSurvey />
+      
+      {/* Onboarding Flow */}
+      {user && showOnboarding && (
+        <OnboardingFlow 
+          userId={user.id}
+          onComplete={handleOnboardingComplete}
+        />
+      )}
       
       {/* Advanced Anti-Procrastination Systems */}
       <DynamicInteractiveHints />
@@ -488,31 +528,36 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 sm:mb-8"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Czas na dopaminę! 🎯</h1>
-          <p className="text-muted-foreground">Każde zadanie to kolejny poziom do przejścia</p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('dashboard.title')} 🎯</h1>
+              <p className="text-muted-foreground">{t('dashboard.subtitle')}</p>
+            </div>
+            <FeedbackDialog />
+          </div>
         </motion.div>
 
         <div className="grid gap-4 grid-cols-2 sm:gap-6 md:grid-cols-4 mb-6 sm:mb-8">
           <StatsCard
-            title="Dzisiejsze XP"
+            title={t('dashboard.todaysXP')}
             value={totalXP}
             icon={Zap}
             delay={0.1}
           />
           <StatsCard
-            title="Całkowite XP"
+            title={t('stats.totalXP')}
             value={profile?.total_xp || 0}
             icon={Trophy}
             delay={0.2}
           />
           <StatsCard
-            title="Seria dni"
+            title={t('dashboard.streakDays')}
             value={`${profile?.current_streak || 0} dni`}
             icon={Calendar}
             delay={0.3}
           />
           <StatsCard
-            title="Zadania dziś"
+            title={t('dashboard.todaysTasks')}
             value={`${completedTasks.length}/${tasks.length}`}
             icon={Target}
             delay={0.4}
@@ -526,13 +571,13 @@ export default function DashboardPage() {
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Postęp dnia</CardTitle>
+            <CardTitle>{t('dashboard.dailyProgress')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ProgressBar
               value={completedTasks.length}
               max={Math.max(tasks.length, 1)}
-              label="Ukończone zadania"
+              label={t('dashboard.completedTasks')}
             />
           </CardContent>
         </Card>
@@ -541,7 +586,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 order-2 lg:order-1">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Mikro-zadania na dziś</CardTitle>
+                <CardTitle>{t('dashboard.microTasksToday')}</CardTitle>
                 <CreateTaskDialog onCreateTask={handleCreateTask} />
               </CardHeader>
               <CardContent>
@@ -615,7 +660,7 @@ export default function DashboardPage() {
             
             <Card>
               <CardHeader>
-                <CardTitle>Małe zwycięstwa 🎯</CardTitle>
+                <CardTitle>{t('dashboard.smallVictories')} 🎯</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -633,13 +678,13 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Następny kamień milowy</CardTitle>
+                <CardTitle>{t('dashboard.nextMilestone')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ProgressBar
                   value={profile?.total_xp || 0}
                   max={profile?.total_xp || 0 < 500 ? 500 : 2000}
-                  label="Postęp XP"
+                  label={t('dashboard.xpProgress')}
                 />
                 <p className="text-sm text-muted-foreground mt-2">
                   {profile?.total_xp || 0 < 500
@@ -652,6 +697,22 @@ export default function DashboardPage() {
             <DynamicLootbox
               onOpen={handleLootboxSpin}
               lastOpenedAt={profile?.lootbox_available_at ? new Date(profile.lootbox_available_at) : null}
+            />
+
+            {/* Level Progress */}
+            <LevelProgress 
+              totalXP={profile?.total_xp || 0}
+              onFeatureClick={(feature) => {
+                if (feature.route) {
+                  router.push(feature.route);
+                } else if (feature.component) {
+                  // Handle component-based features
+                  toast({
+                    title: t('dashboard.featureUnlocked'),
+                    description: feature.name,
+                  });
+                }
+              }}
             />
 
             <DynamicImplementationIntentions
