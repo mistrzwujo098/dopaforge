@@ -201,6 +201,8 @@ export default function DashboardPage() {
     if (!user) return;
 
     try {
+      console.log('Creating task with data:', { user_id: user.id, title, est_minutes: estMinutes, display_order: tasks.length });
+      
       // Bezpośrednio wywołaj createTask zamiast przez observability wrapper
       const newTask = await createTask({
         user_id: user.id,
@@ -209,9 +211,11 @@ export default function DashboardPage() {
         display_order: tasks.length,
       });
 
+      console.log('Task created successfully:', newTask);
+
       // Check if task was created successfully
       if (!newTask) {
-        throw new Error('Nie udało się utworzyć zadania');
+        throw new Error('Nie udało się utworzyć zadania - brak danych');
       }
 
       // Track metrics after successful creation
@@ -226,11 +230,16 @@ export default function DashboardPage() {
         title: 'Zadanie utworzone',
         description: `"${title}" dodane do Twojej listy`,
       });
+      
+      // Opcjonalnie odśwież dane po krótkiej chwili
+      setTimeout(() => {
+        loadData();
+      }, 500);
     } catch (error) {
-      console.error('Error creating task:', error);
+      console.error('Error creating task - full error:', error);
       toast({
         title: 'Błąd tworzenia zadania',
-        description: 'Sprawdź połączenie i spróbuj ponownie',
+        description: error instanceof Error ? error.message : 'Sprawdź połączenie i spróbuj ponownie',
         variant: 'destructive',
       });
     }
