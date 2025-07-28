@@ -115,7 +115,7 @@ importers:
         version: 0.309.0(react@18.3.1)
       next:
         specifier: 14.2.30
-        version: 14.2.30(@babel/core@7.28.0)(react-dom@18.3.1)(react@18.3.1)
+        version: 14.2.30(@babel/core@7.28.0)(@playwright/test@1.54.1)(react-dom@18.3.1)(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -150,6 +150,9 @@ importers:
       '@next/bundle-analyzer':
         specifier: ^15.4.4
         version: 15.4.4
+      '@playwright/test':
+        specifier: ^1.54.1
+        version: 1.54.1
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
@@ -189,6 +192,9 @@ importers:
       eslint-config-next:
         specifier: 14.2.30
         version: 14.2.30(eslint@8.57.1)(typescript@5.8.3)
+      playwright:
+        specifier: ^1.54.1
+        version: 1.54.1
       postcss:
         specifier: ^8.4.33
         version: 8.5.6
@@ -201,6 +207,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.17
+      tsx:
+        specifier: ^4.20.3
+        version: 4.20.3
       typescript:
         specifier: ^5.3.3
         version: 5.8.3
@@ -1540,6 +1549,13 @@ packages:
     engines: {node: '>=14'}
     requiresBuild: true
     optional: true
+
+  /@playwright/test@1.54.1:
+    resolution: {integrity: sha512-FS8hQ12acieG2dYSksmLOF7BNxnVf2afRJdCuM1eMSxj6QTSE6G4InGF7oApGgDb65MX7AwMVlIkpru0yZA4Xw==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      playwright: 1.54.1
 
   /@polka/url@1.0.0-next.29:
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
@@ -3219,7 +3235,7 @@ packages:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 7.0.6(@types/node@20.19.9)
+      vite: 7.0.6(@types/node@20.19.9)(tsx@4.20.3)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3283,7 +3299,7 @@ packages:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.17
-      vite: 7.0.6(@types/node@20.19.9)
+      vite: 7.0.6(@types/node@20.19.9)(tsx@4.20.3)
     dev: true
 
   /@vitest/pretty-format@3.2.4:
@@ -5151,6 +5167,13 @@ packages:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
     dev: true
 
+  /fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+    requiresBuild: true
+    optional: true
+
   /fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -6347,7 +6370,7 @@ packages:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
 
-  /next@14.2.30(@babel/core@7.28.0)(react-dom@18.3.1)(react@18.3.1):
+  /next@14.2.30(@babel/core@7.28.0)(@playwright/test@1.54.1)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-+COdu6HQrHHFQ1S/8BBsCag61jZacmvbuL2avHvQFbWa2Ox7bE+d8FyNgxRLjXQ5wtPyQwEmk85js/AuaG2Sbg==}
     engines: {node: '>=18.17.0'}
     hasBin: true
@@ -6366,6 +6389,7 @@ packages:
         optional: true
     dependencies:
       '@next/env': 14.2.30
+      '@playwright/test': 1.54.1
       '@swc/helpers': 0.5.5
       busboy: 1.6.0
       caniuse-lite: 1.0.30001727
@@ -6704,6 +6728,20 @@ packages:
       mlly: 1.7.4
       pathe: 2.0.3
     dev: true
+
+  /playwright-core@1.54.1:
+    resolution: {integrity: sha512-Nbjs2zjj0htNhzgiy5wu+3w09YetDx5pkrpI/kZotDlDUaYk0HVA5xrBVPdow4SAUIlhgKcJeJg4GRKW6xHusA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  /playwright@1.54.1:
+    resolution: {integrity: sha512-peWpSwIBmSLi6aW2auvrUtf2DqY16YYcCMO8rTVx486jKmDTJg7UAhyrraP98GB8BoPURZP8+nxO7TSd4cPr5g==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.54.1
+    optionalDependencies:
+      fsevents: 2.3.2
 
   /possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
@@ -7918,6 +7956,17 @@ packages:
   /tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  /tsx@4.20.3:
+    resolution: {integrity: sha512-qjbnuR9Tr+FJOMBqJCW5ehvIo/buZq7vH7qD7JziU98h6l3qGy0a/yPFjwO+y0/T7GFpNgNAvEcPPVfyT8rrPQ==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+    dependencies:
+      esbuild: 0.25.8
+      get-tsconfig: 4.10.1
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: true
+
   /tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
     dependencies:
@@ -8244,7 +8293,7 @@ packages:
       debug: 4.4.1(supports-color@8.1.1)
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 7.0.6(@types/node@20.19.9)
+      vite: 7.0.6(@types/node@20.19.9)(tsx@4.20.3)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -8299,7 +8348,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vite@7.0.6(@types/node@20.19.9):
+  /vite@7.0.6(@types/node@20.19.9)(tsx@4.20.3):
     resolution: {integrity: sha512-MHFiOENNBd+Bd9uvc8GEsIzdkn1JxMmEeYX35tI3fv0sJBUTfW5tQsoaOwuY4KhBI09A3dUJ/DXf2yxPVPUceg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
@@ -8346,6 +8395,7 @@ packages:
       postcss: 8.5.6
       rollup: 4.46.0
       tinyglobby: 0.2.14
+      tsx: 4.20.3
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
@@ -8458,7 +8508,7 @@ packages:
       tinyglobby: 0.2.14
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.0.6(@types/node@20.19.9)
+      vite: 7.0.6(@types/node@20.19.9)(tsx@4.20.3)
       vite-node: 3.2.4(@types/node@20.19.9)
       why-is-node-running: 2.3.0
     transitivePeerDependencies:

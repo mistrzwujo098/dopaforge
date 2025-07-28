@@ -1,0 +1,65 @@
+{
+  "timestamp": "2025-07-28T14:29:22.124Z",
+  "totalTests": 10,
+  "passed": 10,
+  "failed": 0,
+  "skipped": 0,
+  "duration": 14446,
+  "results": [
+    {
+      "name": "Landing page - podstawowa nawigacja",
+      "status": "passed",
+      "duration": 436
+    },
+    {
+      "name": "Responsywność - widok mobilny",
+      "status": "passed",
+      "duration": 1958
+    },
+    {
+      "name": "Nawigacja do strony logowania",
+      "status": "passed",
+      "duration": 1456
+    },
+    {
+      "name": "Walidacja formularza logowania",
+      "status": "passed",
+      "duration": 2729
+    },
+    {
+      "name": "Dashboard - sprawdzenie struktury",
+      "status": "passed",
+      "duration": 930
+    },
+    {
+      "name": "Strona statystyk - ładowanie",
+      "status": "passed",
+      "duration": 1548
+    },
+    {
+      "name": "Strona ustawień - struktura",
+      "status": "passed",
+      "duration": 817
+    },
+    {
+      "name": "Smooth scroll i animacje",
+      "status": "passed",
+      "duration": 2097
+    },
+    {
+      "name": "Tryb ciemny - przełączanie",
+      "status": "passed",
+      "duration": 1768
+    },
+    {
+      "name": "Wydajność - czas ładowania",
+      "status": "passed",
+      "duration": 617
+    }
+  ],
+  "systemInfo": {
+    "platform": "darwin",
+    "nodeVersion": "v22.16.0",
+    "playwrightVersion": "1.54.1"
+  }
+}

@@ -18,6 +18,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
+import { MobileMenu } from '@/components/navigation/mobile-menu';
 
 export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -101,10 +102,28 @@ export default function LandingPage() {
               </span>
             </motion.div>
             
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-8">
+              <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                Jak to działa
+              </a>
+              <a href="#features" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                Funkcje
+              </a>
+              <a href="#testimonials" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                Opinie
+              </a>
+              <a href="#pricing" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                Cennik
+              </a>
+            </nav>
+            
+            {/* Desktop CTA */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
+              className="hidden lg:block"
             >
               <Button
                 onClick={() => router.push('/auth')}
@@ -113,6 +132,9 @@ export default function LandingPage() {
                 Rozpocznij za darmo
               </Button>
             </motion.div>
+            
+            {/* Mobile Menu */}
+            <MobileMenu isScrolled={isScrolled} />
           </div>
         </div>
       </motion.header>
@@ -396,6 +418,148 @@ export default function LandingPage() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-gray-50 dark:bg-gray-900/50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+              Prosty cennik
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Zacznij za darmo. Bez karty kredytowej. Bez zobowiązań.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Free Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              viewport={{ once: true }}
+              className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg"
+            >
+              <h3 className="text-2xl font-bold mb-4">Darmowy</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-bold">0 zł</span>
+                <span className="text-gray-600 dark:text-gray-400">/miesiąc</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <span>5 zadań dziennie</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <span>Podstawowe statystyki</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <span>System nagród</span>
+                </li>
+              </ul>
+              <Button
+                onClick={() => router.push('/auth')}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                Rozpocznij za darmo
+              </Button>
+            </motion.div>
+
+            {/* Pro Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              viewport={{ once: true }}
+              className="relative bg-gradient-to-br from-emerald-600 to-cyan-600 text-white rounded-2xl p-8 shadow-xl transform scale-105"
+            >
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-4 py-1 rounded-full text-sm font-semibold">
+                Najpopularniejszy
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Pro</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-bold">29 zł</span>
+                <span className="text-white/80">/miesiąc</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
+                  <span>Nieograniczone zadania</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
+                  <span>AI asystent</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
+                  <span>Zaawansowane statystyki</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
+                  <span>Integracje</span>
+                </li>
+              </ul>
+              <Button
+                onClick={() => router.push('/auth')}
+                className="w-full bg-white text-emerald-600 hover:bg-gray-100"
+                size="lg"
+              >
+                Wybierz Pro
+              </Button>
+            </motion.div>
+
+            {/* Team Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              viewport={{ once: true }}
+              className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg"
+            >
+              <h3 className="text-2xl font-bold mb-4">Zespół</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-bold">99 zł</span>
+                <span className="text-gray-600 dark:text-gray-400">/użytkownik</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <span>Wszystko z Pro</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <span>Panel administracyjny</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <span>Raporty zespołowe</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <span>Priorytetowe wsparcie</span>
+                </li>
+              </ul>
+              <Button
+                onClick={() => router.push('/auth')}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                Kontakt
+              </Button>
+            </motion.div>
           </div>
         </div>
       </section>
