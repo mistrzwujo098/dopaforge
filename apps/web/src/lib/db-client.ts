@@ -322,7 +322,25 @@ export async function getImplementationIntentions(userId: string) {
     console.error('Error fetching implementation intentions:', error);
     throw error;
   }
-  return data || [];
+  
+  // Mapuj z formatu bazy danych na format aplikacji
+  if (data) {
+    return data.map(item => {
+      // Parsuj if_trigger żeby wydobyć typ i wartość
+      const parts = item.if_trigger.split(': ');
+      const trigger_type = parts[0] as 'time' | 'location' | 'habit';
+      const trigger_value = parts.slice(1).join(': ');
+      
+      return {
+        ...item,
+        trigger_type,
+        trigger_value,
+        action: item.then_action
+      };
+    });
+  }
+  
+  return [];
 }
 
 export async function createImplementationIntention(userId: string, intention: {
@@ -331,13 +349,18 @@ export async function createImplementationIntention(userId: string, intention: {
   action: string;
 }) {
   const supabase = createSupabaseBrowser();
+  
+  // Mapuj z formatu aplikacji na format bazy danych
+  const dbIntention = {
+    user_id: userId,
+    if_trigger: `${intention.trigger_type}: ${intention.trigger_value}`,
+    then_action: intention.action,
+    active: true
+  };
+  
   const { data, error } = await supabase
     .from('implementation_intentions')
-    .insert({
-      user_id: userId,
-      ...intention,
-      active: true
-    })
+    .insert(dbIntention)
     .select()
     .single();
 
@@ -345,6 +368,17 @@ export async function createImplementationIntention(userId: string, intention: {
     console.error('Error creating implementation intention:', error);
     throw error;
   }
+  
+  // Mapuj z powrotem na format aplikacji
+  if (data) {
+    return {
+      ...data,
+      trigger_type: intention.trigger_type,
+      trigger_value: intention.trigger_value,
+      action: data.then_action
+    };
+  }
+  
   return data;
 }
 

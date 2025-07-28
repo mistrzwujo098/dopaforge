@@ -41,11 +41,10 @@ LIMIT 5
 ON CONFLICT DO NOTHING;
 
 -- 4. Dodaj przykładowe intencje implementacyjne (tylko dla użytkowników którzy już mają jakieś dane)
-INSERT INTO implementation_intentions (user_id, trigger_type, trigger_value, action, active)
+INSERT INTO implementation_intentions (user_id, if_trigger, then_action, active)
 SELECT 
     user_id,
-    'time',
-    '09:00',
+    'Gdy zegar wybije 9:00',
     'Rozpocznę pracę od najtrudniejszego zadania',
     true
 FROM user_profiles
@@ -128,12 +127,12 @@ AND NOT EXISTS (
 LIMIT 2;
 
 -- 9. Dodaj przykładowe zaplanowane przypomnienia
-INSERT INTO scheduled_cues (user_id, cue_type, scheduled_time, message, active)
+INSERT INTO scheduled_cues (user_id, title, cue_time, days_of_week, enabled)
 SELECT 
     user_id,
-    'reminder',
-    '14:00'::TIME,
     'Czas na przerwę! Wstań i się rozruszaj.',
+    '14:00'::TIME,
+    ARRAY[1, 2, 3, 4, 5], -- Poniedziałek do piątku
     true
 FROM user_profiles
 WHERE total_xp > 50
