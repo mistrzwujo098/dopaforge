@@ -40,6 +40,11 @@ function getEnvVars() {
 }
 
 export function createSupabaseBrowser() {
+  // Reset client to force recreation with new config
+  if (browserClient && process.env.NODE_ENV === 'development') {
+    browserClient = null;
+  }
+  
   // Return existing instance
   if (browserClient) return browserClient;
 
@@ -104,7 +109,7 @@ export function createSupabaseBrowser() {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Prefer': 'return=minimal',
+          // Usuń 'Prefer': 'return=minimal' aby INSERT zwracał dane
         },
       },
     });

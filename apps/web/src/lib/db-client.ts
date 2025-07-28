@@ -38,16 +38,27 @@ export async function getTodayTasks(userId: string) {
 
 export async function createTask(task: MicroTaskInsert) {
   const supabase = createSupabaseBrowser();
+  
+  console.log('Creating task in Supabase with data:', task);
+  
   const { data, error } = await supabase
     .from('micro_tasks')
     .insert(task)
     .select()
     .single();
 
+  console.log('Supabase response - data:', data, 'error:', error);
+
   if (error) {
     console.error('Error creating task:', error);
     throw error;
   }
+  
+  if (!data) {
+    console.error('No data returned from Supabase despite no error');
+    throw new Error('Failed to create task - no data returned');
+  }
+  
   return data as MicroTask;
 }
 
