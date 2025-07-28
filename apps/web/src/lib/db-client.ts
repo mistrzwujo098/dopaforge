@@ -564,7 +564,7 @@ export async function getScheduledCues(userId: string) {
     .from('scheduled_cues')
     .select('*')
     .eq('user_id', userId)
-    .eq('active', true)
+    .eq('enabled', true)
     .order('created_at', { ascending: false });
 
   if (error) {
