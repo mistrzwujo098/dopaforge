@@ -18,6 +18,11 @@ import { Moon, Sun, Bell, LogOut } from 'lucide-react';
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [breakReminder, setBreakReminder] = useState(true);
+  const [soundEffects, setSoundEffects] = useState(true);
+  const [taskNotifications, setTaskNotifications] = useState(true);
+  const [motivationalQuotes, setMotivationalQuotes] = useState(true);
+  const [autoSaveDrafts, setAutoSaveDrafts] = useState(true);
+  const [weekStartsMonday, setWeekStartsMonday] = useState(true);
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
@@ -76,15 +81,15 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 p-6">
-      <div className="container mx-auto max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+      <main id="main-content" className="container mx-auto px-4 py-6 sm:p-6 max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold mb-2">Ustawienia</h1>
-          <p className="text-muted-foreground">Dostosuj swoje doświadczenie DopaForge</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Ustawienia</h1>
+          <p className="text-muted-foreground">Spersonalizuj DopaForge według swoich potrzeb</p>
         </motion.div>
 
         <div className="space-y-6">
@@ -154,6 +159,100 @@ export default function SettingsPage() {
                     />
                   </div>
                 </div>
+                
+                <div className="flex items-center justify-between pt-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="sound-effects" className="text-base">
+                      Efekty dźwiękowe
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Dźwięki przy ukończeniu zadań i nagrodach
+                    </p>
+                  </div>
+                  <Switch
+                    id="sound-effects"
+                    checked={soundEffects}
+                    onCheckedChange={setSoundEffects}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between pt-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="task-notifications" className="text-base">
+                      Powiadomienia o zadaniach
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Przypomnienia o zaplanowanych zadaniach
+                    </p>
+                  </div>
+                  <Switch
+                    id="task-notifications"
+                    checked={taskNotifications}
+                    onCheckedChange={setTaskNotifications}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Produktywność</CardTitle>
+                <CardDescription>Dostosuj funkcje wspierające produktywność</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="motivational-quotes" className="text-base">
+                      Cytaty motywacyjne
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Wyświetlaj inspirujące cytaty w interfejsie
+                    </p>
+                  </div>
+                  <Switch
+                    id="motivational-quotes"
+                    checked={motivationalQuotes}
+                    onCheckedChange={setMotivationalQuotes}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between pt-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="auto-save" className="text-base">
+                      Automatyczny zapis
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Zapisuj szkice zadań automatycznie
+                    </p>
+                  </div>
+                  <Switch
+                    id="auto-save"
+                    checked={autoSaveDrafts}
+                    onCheckedChange={setAutoSaveDrafts}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between pt-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="week-start" className="text-base">
+                      Tydzień zaczyna się w poniedziałek
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Ustaw początek tygodnia w kalendarzu
+                    </p>
+                  </div>
+                  <Switch
+                    id="week-start"
+                    checked={weekStartsMonday}
+                    onCheckedChange={setWeekStartsMonday}
+                  />
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -169,13 +268,39 @@ export default function SettingsPage() {
                 <CardDescription>Zarządzaj ustawieniami konta</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium">Email</p>
-                    <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">Email</p>
+                      <p className="text-sm text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">ID użytkownika</p>
+                      <p className="text-sm text-muted-foreground font-mono">{user?.id.slice(0, 8)}...</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">Data dołączenia</p>
+                      <p className="text-sm text-muted-foreground">
+                        {user?.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'Nieznana'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="pt-4">
+                
+                <div className="pt-4 space-y-3">
+                  <Button
+                    onClick={() => router.push('/data-export')}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Eksportuj moje dane
+                  </Button>
                   <Button
                     onClick={handleSignOut}
                     variant="destructive"
@@ -189,22 +314,46 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
           </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8 text-center"
-        >
-          <Button
-            onClick={() => router.push('/dashboard')}
-            variant="outline"
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
           >
-            Powrót do pulpitu
-          </Button>
-        </motion.div>
-      </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Prywatność i bezpieczeństwo</CardTitle>
+                <CardDescription>Zarządzaj swoimi danymi i prywatnością</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => router.push('/privacy')}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    Polityka prywatności
+                  </Button>
+                  <Button
+                    onClick={() => router.push('/terms')}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    Warunki korzystania
+                  </Button>
+                  <Button
+                    onClick={() => router.push('/help')}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    Centrum pomocy
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </main>
     </div>
   );
 }

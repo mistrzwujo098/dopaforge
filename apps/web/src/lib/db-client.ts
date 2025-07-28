@@ -653,6 +653,42 @@ export async function spinLootbox(userId: string) {
   return selectedReward;
 }
 
+// Get task statistics for user
+export async function getTaskStats(userId: string) {
+  const supabase = createSupabaseBrowser();
+  
+  try {
+    const { data, error } = await supabase
+      .from('micro_tasks')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) throw error;
+
+    const totalTasks = data?.length || 0;
+    const completedTasks = data?.filter(task => task.status === 'completed').length || 0;
+    const totalMinutes = data?.reduce((sum, task) => {
+      if (task.status === 'completed' && task.actual_minutes) {
+        return sum + task.actual_minutes;
+      }
+      return sum + (task.est_minutes || 0);
+    }, 0) || 0;
+
+    return {
+      totalTasks,
+      completedTasks,
+      totalMinutes
+    };
+  } catch (error) {
+    console.error('Error getting task stats:', error);
+    return {
+      totalTasks: 0,
+      completedTasks: 0,
+      totalMinutes: 0
+    };
+  }
+}
+
 // Re-export other functions that don't need modification
 export {
   getUserRewards,

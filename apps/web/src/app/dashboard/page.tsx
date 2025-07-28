@@ -69,6 +69,7 @@ import {
   DynamicPhysicalIntegration,
   DynamicInteractiveHints,
 } from '@/components/dynamic-imports';
+import { ProgressiveDiscovery } from '@/components/feature-discovery/progressive-discovery';
 import { NotificationPermission } from '@/components/notification-permission';
 import { observability } from '@/lib/observability';
 import { migrateUserDataFromLocalStorage, isDataMigrated } from '@/lib/migrate-from-localstorage';
@@ -297,6 +298,7 @@ export default function DashboardPage() {
   const completedTasks = tasks.filter((t) => t && t.status === 'completed');
   const pendingTasks = tasks.filter((t) => t && t.status === 'pending');
   const totalXP = completedTasks.reduce((sum, task) => sum + task.est_minutes, 0);
+  const userLevel = profile ? Math.floor((profile.total_xp || 0) / 100) + 1 : 1;
 
   const handleFutureSelfSubmit = async (visualization: string, feelings: string[]) => {
     if (!user) return;
@@ -741,6 +743,14 @@ export default function DashboardPage() {
                   title: 'Wymagana akcja fizyczna',
                   description: action,
                 });
+              }}
+            />
+            
+            {/* Progressive Feature Discovery */}
+            <ProgressiveDiscovery
+              userLevel={userLevel}
+              onFeatureClick={(feature) => {
+                router.push(feature.route);
               }}
             />
           </div>
