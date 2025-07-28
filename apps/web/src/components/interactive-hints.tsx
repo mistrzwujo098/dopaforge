@@ -98,7 +98,9 @@ export function InteractiveHints() {
             try {
               const parsed = JSON.parse(savedData);
               lastDismissed = parsed.lastDismissed || 0;
-            } catch {}
+            } catch (e) {
+              // Ignoruj błąd parsowania
+            }
           }
           
           // Pokazuj tylko jeśli minęło 30 minut od ostatniego zamknięcia
@@ -143,7 +145,9 @@ export function InteractiveHints() {
         } else if (parsed.hints) {
           setDismissedHints(parsed.hints);
         }
-      } catch {}
+      } catch (e) {
+        // Ignoruj błąd parsowania
+      }
     }
     
     const firstVisitHints = hints.filter(
