@@ -75,7 +75,7 @@ AND NOT EXISTS (
 LIMIT 2;
 
 -- 6. Dodaj przykładowe wpisy do historii lootboxów
-INSERT INTO lootbox_history (user_id, reward_type, reward_payload, opened_at)
+INSERT INTO lootbox_history (user_id, reward_type, reward_payload, created_at)
 SELECT 
     user_id,
     CASE (RANDOM() * 3)::INT

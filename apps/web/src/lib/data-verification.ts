@@ -156,7 +156,7 @@ export async function verifyDataSaving(userId: string): Promise<VerificationResu
       .from('lootbox_history')
       .select('*')
       .eq('user_id', userId)
-      .order('opened_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(10);
 
     if (error) throw error;
