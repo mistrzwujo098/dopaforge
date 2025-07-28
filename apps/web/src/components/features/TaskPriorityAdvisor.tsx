@@ -206,7 +206,7 @@ export function TaskPriorityAdvisor({ tasks, onTaskSelect }: TaskPriorityAdvisor
                     variant="gradient"
                     onClick={() => handleTaskSelect(recommendedTask.id)}
                   >
-                    Start
+                    Rozpocznij
                     <ChevronRight className="ml-1 h-3 w-3" />
                   </Button>
                 </div>
@@ -233,7 +233,7 @@ export function TaskPriorityAdvisor({ tasks, onTaskSelect }: TaskPriorityAdvisor
                     variant="outline"
                     onClick={() => handleTaskSelect(alternativeTask.id)}
                   >
-                    Start
+                    Rozpocznij
                   </Button>
                 </div>
               </div>

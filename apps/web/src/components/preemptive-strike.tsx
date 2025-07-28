@@ -181,7 +181,7 @@ export function PreemptiveStrike({ userId, onActionRequired }: PreemptiveStrikeP
           initial={{ opacity: 0, x: 100 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -100 }}
-          className="fixed bottom-4 right-4 z-50 max-w-sm"
+          className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 max-w-sm sm:max-w-sm"
         >
           <Card className={`p-4 shadow-2xl border-2 ${
             strike.urgency === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-950' :
@@ -276,7 +276,7 @@ function ThreatLevelIndicator() {
     <motion.div
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
-      className="fixed top-20 right-4 z-40"
+      className="fixed top-20 right-4 left-4 sm:left-auto z-40 flex justify-end"
     >
       <div className={`
         flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium

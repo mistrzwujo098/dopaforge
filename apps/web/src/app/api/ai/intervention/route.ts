@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     // Apply rate limiting
     const rateLimiters = await getRateLimiters();
     const clientId = user.id || getClientIdentifier(request);
-    const rateLimitResult = await rateLimiters.ai.check(clientId, 'ai-breakdown');
+    const rateLimitResult = await rateLimiters.ai.check(clientId, 'ai-intervention');
     
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
@@ -35,16 +35,16 @@ export async function POST(request: NextRequest) {
       const safeError = createSafeErrorResponse(
         new Error('Missing GEMINI_API_KEY environment variable'),
         500,
-        { endpoint: 'ai-breakdown' }
+        { endpoint: 'ai-intervention' }
       );
       return NextResponse.json({ error: safeError.message }, { status: safeError.statusCode });
     }
 
     // Parse request body
-    const { taskDescription, userContext } = await request.json();
+    const { currentState } = await request.json();
     
-    if (!taskDescription) {
-      return NextResponse.json({ error: 'Task description required' }, { status: 400 });
+    if (!currentState) {
+      return NextResponse.json({ error: 'Current state required' }, { status: 400 });
     }
 
     // Initialize Gemini client on server side only
@@ -52,35 +52,29 @@ export async function POST(request: NextRequest) {
     const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     const prompt = `
-Jesteś ekspertem produktywności specjalizującym się w dzieleniu złożonych zadań na mikro-zadania.
-Każde mikro-zadanie powinno zająć od 2 do 25 minut.
+Jesteś ekspertem od produktywności i psychologii motywacji.
 
-Zadanie do podzielenia: "${taskDescription}"
+Stan użytkownika:
+- Obecne zadanie: ${currentState.taskTitle}
+- Czas pracy: ${currentState.timeSpentMinutes} minut
+- Procent ukończenia dzisiaj: ${currentState.completionRate}%
+- Nastrój: ${currentState.recentMood || 'nieznany'}
 
-Kontekst użytkownika:
-- Poziom energii: ${userContext?.energyLevel === 'low' ? 'niski' : userContext?.energyLevel === 'high' ? 'wysoki' : 'średni'}
-- Poziom doświadczenia: ${userContext?.experienceLevel === 'beginner' ? 'początkujący' : userContext?.experienceLevel === 'expert' ? 'ekspert' : 'średniozaawansowany'}
-- Dostępny czas: ${userContext?.availableTime || 'elastyczny'} minut
+Na podstawie stanu użytkownika, zasugeruj interwencję motywacyjną.
 
-Podziel to na konkretne, wykonalne mikro-zadania.
-Odpowiedz TYLKO w formacie JSON z taką strukturą:
-[
-  {
-    "title": "Tytuł zadania",
-    "estimatedMinutes": 15,
-    "difficulty": "easy|medium|hard",
-    "description": "Krótki opis co zrobić",
-    "order": 1
-  }
-]
+Odpowiedz TYLKO w formacie JSON:
+{
+  "interventionType": "encouragement|break|reward|challenge",
+  "message": "Krótka, motywująca wiadomość (max 2 zdania)",
+  "action": "Konkretna akcja do wykonania",
+  "urgency": "low|medium|high"
+}
 
-Zasady:
-1. Każde zadanie musi trwać 2-25 minut
-2. Zadania muszą być konkretne i wykonalne
-3. Uporządkuj zadania logicznie
-4. Weź pod uwagę poziom energii i doświadczenia użytkownika
-5. Pierwsze zadanie powinno być bardzo łatwe, aby zbudować momentum
-6. Zwróć TYLKO poprawny JSON, bez dodatkowego tekstu
+Typy interwencji:
+- encouragement: zachęta gdy użytkownik dobrze sobie radzi
+- break: sugestia przerwy gdy pracuje zbyt długo
+- reward: nagroda za postępy
+- challenge: wyzwanie gdy użytkownik potrzebuje dodatkowej motywacji
 `;
 
     const result = await model.generateContent(prompt);
@@ -88,20 +82,20 @@ Zasady:
     const text = response.text();
     
     // Extract JSON from response
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('Invalid response format');
     }
     
-    const tasks = JSON.parse(jsonMatch[0]);
+    const intervention = JSON.parse(jsonMatch[0]);
     
     return NextResponse.json(
-      { tasks },
+      intervention,
       { headers: getRateLimitHeaders(rateLimitResult, 20) }
     );
   } catch (error) {
     const safeError = createSafeErrorResponse(error, 500, {
-      endpoint: 'ai-breakdown',
+      endpoint: 'ai-intervention',
       method: 'POST'
     });
     

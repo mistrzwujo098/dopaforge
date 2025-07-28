@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     // Apply rate limiting
     const rateLimiters = await getRateLimiters();
     const clientId = user.id || getClientIdentifier(request);
-    const rateLimitResult = await rateLimiters.ai.check(clientId, 'ai-breakdown');
+    const rateLimitResult = await rateLimiters.ai.check(clientId, 'ai-story');
     
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
@@ -35,73 +35,57 @@ export async function POST(request: NextRequest) {
       const safeError = createSafeErrorResponse(
         new Error('Missing GEMINI_API_KEY environment variable'),
         500,
-        { endpoint: 'ai-breakdown' }
+        { endpoint: 'ai-story' }
       );
       return NextResponse.json({ error: safeError.message }, { status: safeError.statusCode });
     }
 
     // Parse request body
-    const { taskDescription, userContext } = await request.json();
+    const { completedTasks, period } = await request.json();
     
-    if (!taskDescription) {
-      return NextResponse.json({ error: 'Task description required' }, { status: 400 });
+    if (!completedTasks || completedTasks.length === 0) {
+      return NextResponse.json({ 
+        story: "Nie masz jeszcze ukończonych zadań. Zacznij od pierwszego małego kroku!" 
+      });
     }
 
     // Initialize Gemini client on server side only
     const gemini = new GoogleGenerativeAI(apiKey);
     const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
+    const totalMinutes = completedTasks.reduce((sum: number, task: any) => sum + task.estimatedMinutes, 0);
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+    
     const prompt = `
-Jesteś ekspertem produktywności specjalizującym się w dzieleniu złożonych zadań na mikro-zadania.
-Każde mikro-zadanie powinno zająć od 2 do 25 minut.
+Jesteś motywującym narratorem pomagającym użytkownikom celebrować ich postępy.
 
-Zadanie do podzielenia: "${taskDescription}"
+Ukończone zadania (${period === 'weekly' ? 'w tym tygodniu' : 'dzisiaj'}):
+${completedTasks.map((t: any) => `- ${t.title} (${t.estimatedMinutes} min)`).join('\n')}
 
-Kontekst użytkownika:
-- Poziom energii: ${userContext?.energyLevel === 'low' ? 'niski' : userContext?.energyLevel === 'high' ? 'wysoki' : 'średni'}
-- Poziom doświadczenia: ${userContext?.experienceLevel === 'beginner' ? 'początkujący' : userContext?.experienceLevel === 'expert' ? 'ekspert' : 'średniozaawansowany'}
-- Dostępny czas: ${userContext?.availableTime || 'elastyczny'} minut
+Łączny czas pracy: ${totalHours > 0 ? `${totalHours}h ${remainingMinutes}min` : `${remainingMinutes} min`}
+Liczba zadań: ${completedTasks.length}
 
-Podziel to na konkretne, wykonalne mikro-zadania.
-Odpowiedz TYLKO w formacie JSON z taką strukturą:
-[
-  {
-    "title": "Tytuł zadania",
-    "estimatedMinutes": 15,
-    "difficulty": "easy|medium|hard",
-    "description": "Krótki opis co zrobić",
-    "order": 1
-  }
-]
+Napisz krótką (2-3 zdania), motywującą historię o postępach użytkownika.
+Użyj metafor gamingowych lub przygodowych.
+Bądź konkretny i odnieś się do liczby zadań i czasu.
+Zakończ zachętą do dalszej pracy.
 
-Zasady:
-1. Każde zadanie musi trwać 2-25 minut
-2. Zadania muszą być konkretne i wykonalne
-3. Uporządkuj zadania logicznie
-4. Weź pod uwagę poziom energii i doświadczenia użytkownika
-5. Pierwsze zadanie powinno być bardzo łatwe, aby zbudować momentum
-6. Zwróć TYLKO poprawny JSON, bez dodatkowego tekstu
+NIE używaj emoji.
+NIE pisz więcej niż 3 zdania.
 `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
-    
-    // Extract JSON from response
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error('Invalid response format');
-    }
-    
-    const tasks = JSON.parse(jsonMatch[0]);
+    const story = response.text().trim();
     
     return NextResponse.json(
-      { tasks },
+      { story },
       { headers: getRateLimitHeaders(rateLimitResult, 20) }
     );
   } catch (error) {
     const safeError = createSafeErrorResponse(error, 500, {
-      endpoint: 'ai-breakdown',
+      endpoint: 'ai-story',
       method: 'POST'
     });
     

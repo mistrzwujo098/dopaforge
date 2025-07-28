@@ -6,6 +6,8 @@ import { Card, Button } from '@dopaforge/ui';
 import { ChevronRight, AlertCircle, Zap, Target, Brain } from 'lucide-react';
 import { DarkPsychologyEngine } from '@/lib/dark-psychology';
 import { useRouter } from 'next/navigation';
+import { updateUserProfile } from '@/lib/db-client';
+import { useToast } from '@/hooks/useToast';
 
 interface OnboardingStep {
   id: string;
@@ -21,7 +23,9 @@ export function GuidedOnboarding({ userId }: { userId: string }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [skippedSteps, setSkippedSteps] = useState(0);
   const [commitment, setCommitment] = useState<string>('');
+  const [isCompleting, setIsCompleting] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   const steps: OnboardingStep[] = [
     {
@@ -203,10 +207,37 @@ export function GuidedOnboarding({ userId }: { userId: string }) {
             </div>
             <div className="space-y-3">
               <Button
-                onClick={() => {
-                  localStorage.setItem('onboarding_completed', 'true');
-                  router.push('/dashboard');
+                onClick={async () => {
+                  if (isCompleting) return;
+                  setIsCompleting(true);
+                  
+                  try {
+                    // Zapisz w localStorage dla kompatybilności
+                    localStorage.setItem('onboarding_completed', 'true');
+                    
+                    // Zapisz w bazie danych
+                    await updateUserProfile(userId, {
+                      has_completed_onboarding: true,
+                      onboarding_completed_at: new Date().toISOString(),
+                      onboarding_data: {
+                        procrastination_type: localStorage.getItem('procrastination_type'),
+                        panic_threshold: localStorage.getItem('panic_threshold'),
+                        commitment: commitment
+                      }
+                    });
+                    
+                    router.push('/dashboard');
+                  } catch (error) {
+                    console.error('Error completing onboarding:', error);
+                    toast({
+                      title: 'Błąd zapisu',
+                      description: 'Nie udało się zapisać postępu. Spróbuj ponownie.',
+                      variant: 'destructive'
+                    });
+                    setIsCompleting(false);
+                  }
                 }}
+                disabled={isCompleting}
                 size="lg"
                 className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700"
               >

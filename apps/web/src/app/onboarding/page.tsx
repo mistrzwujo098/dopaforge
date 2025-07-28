@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { GuidedOnboarding } from '@/components/guided-onboarding';
 import { useUser } from '@/hooks/useUser';
+import { getUserProfile } from '@/lib/db-client';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -16,10 +17,25 @@ export default function OnboardingPage() {
         router.push('/auth');
       } else {
         // Sprawdź czy użytkownik już przeszedł onboarding
-        const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
-        if (hasCompletedOnboarding === 'true') {
-          router.push('/dashboard');
-        }
+        const checkOnboardingStatus = async () => {
+          try {
+            const profile = await getUserProfile(user.id);
+            if (profile?.has_completed_onboarding) {
+              router.push('/dashboard');
+              return;
+            }
+          } catch (error) {
+            console.error('Error checking onboarding status:', error);
+          }
+          
+          // Sprawdź localStorage dla kompatybilności wstecznej
+          const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
+          if (hasCompletedOnboarding === 'true') {
+            router.push('/dashboard');
+          }
+        };
+        
+        checkOnboardingStatus();
       }
     }
   }, [user, loading, router]);

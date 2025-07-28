@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     // Apply rate limiting
     const rateLimiters = await getRateLimiters();
     const clientId = user.id || getClientIdentifier(request);
-    const rateLimitResult = await rateLimiters.ai.check(clientId, 'ai-breakdown');
+    const rateLimitResult = await rateLimiters.ai.check(clientId, 'ai-priority');
     
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
@@ -35,52 +35,54 @@ export async function POST(request: NextRequest) {
       const safeError = createSafeErrorResponse(
         new Error('Missing GEMINI_API_KEY environment variable'),
         500,
-        { endpoint: 'ai-breakdown' }
+        { endpoint: 'ai-priority' }
       );
       return NextResponse.json({ error: safeError.message }, { status: safeError.statusCode });
     }
 
     // Parse request body
-    const { taskDescription, userContext } = await request.json();
+    const { tasks, currentTime, userEnergy } = await request.json();
     
-    if (!taskDescription) {
-      return NextResponse.json({ error: 'Task description required' }, { status: 400 });
+    if (!tasks || tasks.length === 0) {
+      return NextResponse.json({ error: 'No tasks provided' }, { status: 400 });
     }
 
     // Initialize Gemini client on server side only
     const gemini = new GoogleGenerativeAI(apiKey);
     const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
+    const tasksInfo = tasks.map((t: any) => ({
+      id: t.id,
+      title: t.title,
+      minutes: t.estimatedMinutes,
+      deadline: t.deadline ? new Date(t.deadline).toLocaleDateString('pl-PL') : 'brak',
+      importance: t.importance === 'high' ? 'wysoka' : t.importance === 'low' ? 'niska' : 'średnia'
+    }));
+    
     const prompt = `
-Jesteś ekspertem produktywności specjalizującym się w dzieleniu złożonych zadań na mikro-zadania.
-Każde mikro-zadanie powinno zająć od 2 do 25 minut.
+Jesteś ekspertem produktywności pomagającym wybrać najlepsze zadanie do wykonania teraz.
 
-Zadanie do podzielenia: "${taskDescription}"
+Obecny czas: ${new Date(currentTime).toLocaleString('pl-PL')}
+Poziom energii użytkownika: ${userEnergy === 'low' ? 'niski' : userEnergy === 'high' ? 'wysoki' : 'średni'}
 
-Kontekst użytkownika:
-- Poziom energii: ${userContext?.energyLevel === 'low' ? 'niski' : userContext?.energyLevel === 'high' ? 'wysoki' : 'średni'}
-- Poziom doświadczenia: ${userContext?.experienceLevel === 'beginner' ? 'początkujący' : userContext?.experienceLevel === 'expert' ? 'ekspert' : 'średniozaawansowany'}
-- Dostępny czas: ${userContext?.availableTime || 'elastyczny'} minut
+Dostępne zadania:
+${JSON.stringify(tasksInfo, null, 2)}
 
-Podziel to na konkretne, wykonalne mikro-zadania.
-Odpowiedz TYLKO w formacie JSON z taką strukturą:
-[
-  {
-    "title": "Tytuł zadania",
-    "estimatedMinutes": 15,
-    "difficulty": "easy|medium|hard",
-    "description": "Krótki opis co zrobić",
-    "order": 1
-  }
-]
+Na podstawie:
+- Poziomu energii użytkownika
+- Czasu trwania zadań
+- Terminów wykonania
+- Ważności zadań
 
-Zasady:
-1. Każde zadanie musi trwać 2-25 minut
-2. Zadania muszą być konkretne i wykonalne
-3. Uporządkuj zadania logicznie
-4. Weź pod uwagę poziom energii i doświadczenia użytkownika
-5. Pierwsze zadanie powinno być bardzo łatwe, aby zbudować momentum
-6. Zwróć TYLKO poprawny JSON, bez dodatkowego tekstu
+Wybierz najlepsze zadanie do wykonania teraz i opcjonalnie alternatywę.
+
+Odpowiedz TYLKO w formacie JSON:
+{
+  "recommendedTaskId": "id_zadania",
+  "reasoning": "Krótkie wyjaśnienie dlaczego to zadanie jest najlepsze teraz",
+  "alternativeTaskId": "id_alternatywnego_zadania",
+  "energyTip": "Porada dotycząca energii i produktywności"
+}
 `;
 
     const result = await model.generateContent(prompt);
@@ -88,20 +90,20 @@ Zasady:
     const text = response.text();
     
     // Extract JSON from response
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('Invalid response format');
     }
     
-    const tasks = JSON.parse(jsonMatch[0]);
+    const advice = JSON.parse(jsonMatch[0]);
     
     return NextResponse.json(
-      { tasks },
+      advice,
       { headers: getRateLimitHeaders(rateLimitResult, 20) }
     );
   } catch (error) {
     const safeError = createSafeErrorResponse(error, 500, {
-      endpoint: 'ai-breakdown',
+      endpoint: 'ai-priority',
       method: 'POST'
     });
     

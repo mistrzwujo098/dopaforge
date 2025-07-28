@@ -149,10 +149,32 @@ export default function DashboardPage() {
     }
     
     // Sprawdź czy użytkownik przeszedł onboarding
-    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
-    if (!hasCompletedOnboarding) {
-      router.push('/onboarding');
-      return;
+    // Najpierw sprawdź localStorage dla kompatybilności wstecznej
+    const hasCompletedOnboardingLocal = localStorage.getItem('onboarding_completed');
+    
+    // Pobierz profil użytkownika i sprawdź status onboardingu
+    try {
+      const userProfile = await getUserProfile(user.id);
+      if (!userProfile || !userProfile.has_completed_onboarding) {
+        // Jeśli użytkownik ma localStorage ale nie ma w bazie, zaktualizuj bazę
+        if (hasCompletedOnboardingLocal) {
+          await updateUserProfile(user.id, {
+            has_completed_onboarding: true,
+            onboarding_completed_at: new Date().toISOString()
+          });
+        } else {
+          // Przekieruj do onboardingu
+          router.push('/onboarding');
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      // W przypadku błędu, sprawdź tylko localStorage
+      if (!hasCompletedOnboardingLocal) {
+        router.push('/onboarding');
+        return;
+      }
     }
     
     loadData();
@@ -169,13 +191,12 @@ export default function DashboardPage() {
     if (!user) return;
 
     try {
-      const newTask = await observability.trackApiCall('create_task', async () => {
-        return await createTask({
-          user_id: user.id,
-          title,
-          est_minutes: estMinutes,
-          display_order: tasks.length,
-        });
+      // Bezpośrednio wywołaj createTask zamiast przez observability wrapper
+      const newTask = await createTask({
+        user_id: user.id,
+        title,
+        est_minutes: estMinutes,
+        display_order: tasks.length,
       });
 
       // Check if task was created successfully
@@ -183,10 +204,14 @@ export default function DashboardPage() {
         throw new Error('Nie udało się utworzyć zadania');
       }
 
+      // Track metrics after successful creation
+      observability.trackApiCall('create_task', async () => newTask);
       observability.trackUserAction('task_created', { estMinutes });
 
-      setTasks([...tasks, newTask]);
+      // Immediately update local state
+      setTasks(prevTasks => [...prevTasks, newTask]);
       setLastActivity(new Date());
+      
       toast({
         title: 'Zadanie utworzone',
         description: `"${title}" dodane do Twojej listy`,
