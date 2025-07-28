@@ -599,7 +599,7 @@ export async function spinLootbox(userId: string) {
   });
 
   // Apply reward
-  if (selectedReward.type === 'xp') {
+  if (selectedReward.type === 'xp' && selectedReward.payload.amount) {
     await updateUserProfile(userId, {
       total_xp: (profile.total_xp || 0) + selectedReward.payload.amount,
     });
