@@ -1,18 +1,38 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useUser } from './useUser';
+import { getUserProfile, updateUserProfile } from '@/lib/db-client';
 
 export type Theme = 'light' | 'dark' | 'auto';
 
 export function useDarkMode() {
   const [theme, setTheme] = useState<Theme>('auto');
   const [isDark, setIsDark] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
-    // Load saved theme preference
-    const savedTheme = localStorage.getItem('theme') as Theme || 'auto';
-    setTheme(savedTheme);
-  }, []);
+    // Pobierz motyw z bazy danych dla zalogowanego użytkownika
+    const loadTheme = async () => {
+      if (user) {
+        try {
+          const profile = await getUserProfile(user.id);
+          if (profile && (profile as any).theme) {
+            setTheme((profile as any).theme);
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to load theme from database:', error);
+        }
+      }
+      
+      // Fallback na localStorage dla niezalogowanych użytkowników
+      const savedTheme = localStorage.getItem('theme') as Theme || 'auto';
+      setTheme(savedTheme);
+    };
+    
+    loadTheme();
+  }, [user]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -76,9 +96,20 @@ export function useDarkMode() {
     }
   }, [theme]);
 
-  const setThemeAndSave = (newTheme: Theme) => {
+  const setThemeAndSave = async (newTheme: Theme) => {
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
+    
+    // Zapisz w bazie danych dla zalogowanych użytkowników
+    if (user) {
+      try {
+        await updateUserProfile(user.id, { theme: newTheme } as any);
+      } catch (error) {
+        console.error('Failed to save theme to database:', error);
+      }
+    } else {
+      // Fallback na localStorage dla niezalogowanych
+      localStorage.setItem('theme', newTheme);
+    }
   };
 
   const toggleTheme = () => {

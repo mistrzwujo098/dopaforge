@@ -71,6 +71,7 @@ import {
 } from '@/components/dynamic-imports';
 import { NotificationPermission } from '@/components/notification-permission';
 import { observability } from '@/lib/observability';
+import { migrateUserDataFromLocalStorage, isDataMigrated } from '@/lib/migrate-from-localstorage';
 // Removed direct imports - using dynamic imports instead
 
 type Task = Database['public']['Tables']['micro_tasks']['Row'];
@@ -152,6 +153,11 @@ export default function DashboardPage() {
       // Sprawdź czy użytkownik przeszedł onboarding
       // Najpierw sprawdź localStorage dla kompatybilności wstecznej
       const hasCompletedOnboardingLocal = localStorage.getItem('onboarding_completed');
+      
+      // Migruj dane z localStorage do bazy danych (jednorazowo)
+      if (!isDataMigrated() && user) {
+        await migrateUserDataFromLocalStorage(user.id);
+      }
       
       // Pobierz profil użytkownika i sprawdź status onboardingu
       try {

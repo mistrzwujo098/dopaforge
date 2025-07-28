@@ -7,6 +7,7 @@ import { Button, Card } from '@dopaforge/ui';
 import { Achievement, ACHIEVEMENTS, AchievementSystem } from '@/lib/achievements';
 import { SoundSystem } from '@/lib/sound-system';
 import { LinearProgress } from './progress-indicators';
+import { getUserProfile, updateUserProfile } from '@/lib/db-client';
 
 interface AchievementBadgesProps {
   userId: string;
@@ -29,10 +30,21 @@ export function AchievementBadges({
     checkForNewAchievements();
   }, [userStats]);
 
-  const checkForNewAchievements = () => {
-    const unlockedIds = JSON.parse(
-      localStorage.getItem(`achievements_${userId}`) || '[]'
-    );
+  const checkForNewAchievements = async () => {
+    // Pobierz osiągnięcia z bazy danych
+    let unlockedIds: string[] = [];
+    try {
+      const profile = await getUserProfile(userId);
+      if (profile && (profile as any).achievements) {
+        unlockedIds = (profile as any).achievements;
+      }
+    } catch (error) {
+      console.error('Failed to load achievements from database:', error);
+      // Fallback na localStorage
+      unlockedIds = JSON.parse(
+        localStorage.getItem(`achievements_${userId}`) || '[]'
+      );
+    }
 
     const newAchievements = AchievementSystem.checkAchievements({
       ...userStats,
@@ -47,9 +59,15 @@ export function AchievementBadges({
           soundSystem.play('achievement');
           onAchievementUnlocked(achievement);
 
-          // Save to localStorage
+          // Zapisz do bazy danych
           const updated = [...unlockedIds, achievement.id];
-          localStorage.setItem(`achievements_${userId}`, JSON.stringify(updated));
+          try {
+            await updateUserProfile(userId, { achievements: updated } as any);
+          } catch (error) {
+            console.error('Failed to save achievements to database:', error);
+            // Fallback na localStorage
+            localStorage.setItem(`achievements_${userId}`, JSON.stringify(updated));
+          }
         }, index * 2000);
       });
     }
