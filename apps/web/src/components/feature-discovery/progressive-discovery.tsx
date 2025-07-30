@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@dopaforge/ui';
 import { X, Sparkles, ChevronRight, Lock } from 'lucide-react';
+import { ManagedPopup } from '@/components/managed-popup';
+import { PopupPriority } from '@/components/popup-manager';
 
 interface Feature {
   id: string;
@@ -124,13 +126,19 @@ export function ProgressiveDiscovery({ userLevel, onFeatureClick }: ProgressiveD
   return (
     <>
       {/* Feature Unlock Notification */}
-      <AnimatePresence>
-        {showDiscovery && highlightedFeature && (
+      {showDiscovery && highlightedFeature && (
+        <ManagedPopup
+          id={`feature-unlock-${highlightedFeature.id}`}
+          priority={PopupPriority.MEDIUM}
+          dismissible={true}
+          cooldown={1440} // 24 hours
+          onClose={() => dismissFeature(highlightedFeature.id)}
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -20 }}
-            className="fixed top-20 right-4 z-50 max-w-sm"
+            className="max-w-sm"
           >
             <Card className="p-6 shadow-xl border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-950/20 dark:to-cyan-950/20">
               <div className="flex items-start justify-between mb-4">
@@ -169,8 +177,8 @@ export function ProgressiveDiscovery({ userLevel, onFeatureClick }: ProgressiveD
               </div>
             </Card>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </ManagedPopup>
+      )}
 
       {/* Next Feature Teaser */}
       {nextFeature && (

@@ -83,7 +83,11 @@ DopaForge is a web application that leverages behavioral psychology and gamifica
    - Once created, go to SQL Editor
    - Run the SQL from `supabase/schema.sql` to create all tables and policies
 
-5. **Run the development server**
+5. **Optional: Configure AI features**
+   - See [AI_SETUP.md](./AI_SETUP.md) for instructions on enabling AI-powered features
+   - The app works without AI configuration, but some features will be limited
+
+6. **Run the development server**
    ```bash
    pnpm dev
    ```

@@ -10,6 +10,7 @@ import { SupabaseProvider } from '@/components/supabase-provider';
 import { PerformanceReporter } from '@/components/performance-reporter';
 import { PWAProvider } from '@/components/pwa-provider';
 import { OfflineIndicator } from '@/components/offline-indicator';
+import { PopupManagerProvider } from '@/components/popup-manager';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -141,11 +142,13 @@ export default function RootLayout({
         </a>
         <ObservabilityProvider>
           <SupabaseProvider>
-            <PWAProvider>
-              <OfflineIndicator />
-              <PerformanceReporter />
-              {children}
-            </PWAProvider>
+            <PopupManagerProvider>
+              <PWAProvider>
+                <OfflineIndicator />
+                <PerformanceReporter />
+                {children}
+              </PWAProvider>
+            </PopupManagerProvider>
           </SupabaseProvider>
         </ObservabilityProvider>
         <Toaster />

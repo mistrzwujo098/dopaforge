@@ -6,6 +6,8 @@ import { Card, Button } from '@dopaforge/ui';
 import { Shield, Zap, Brain, Target, AlertTriangle } from 'lucide-react';
 import { AntiEscapeSystem } from '@/lib/anti-escape-system';
 import { DarkPsychologyEngine } from '@/lib/dark-psychology';
+import { ManagedPopup } from '@/components/managed-popup';
+import { PopupPriority } from '@/components/popup-manager';
 
 interface PreemptiveStrikeProps {
   userId: string;
@@ -101,6 +103,10 @@ export function PreemptiveStrike({ userId, onActionRequired }: PreemptiveStrikeP
     setActiveStrikes(strikes);
   };
 
+  const dismissStrike = (strikeId: string) => {
+    setActiveStrikes(prev => prev.filter(s => s.id !== strikeId));
+  };
+
   // System "Prokrastynacja przez socjale"
   const detectSocialMediaUrge = () => {
     const lastCheck = localStorage.getItem('last_social_check');
@@ -176,14 +182,21 @@ export function PreemptiveStrike({ userId, onActionRequired }: PreemptiveStrikeP
   return (
     <>
       {activeStrikes.map((strike) => (
-        <motion.div
+        <ManagedPopup
           key={strike.id}
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -100 }}
-          className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 max-w-sm sm:max-w-sm"
+          id={`preemptive-strike-${strike.id}`}
+          priority={strike.urgency === 'critical' ? PopupPriority.HIGH : PopupPriority.MEDIUM}
+          dismissible={true}
+          cooldown={60} // 1 hour cooldown
+          onClose={() => dismissStrike(strike.id)}
         >
-          <Card className={`p-4 shadow-2xl border-2 ${
+          <motion.div
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            className="max-w-sm"
+          >
+            <Card className={`p-4 shadow-2xl border-2 ${
             strike.urgency === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-950' :
             strike.urgency === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950' :
             'border-yellow-500 bg-yellow-50 dark:bg-yellow-950'
@@ -230,6 +243,7 @@ export function PreemptiveStrike({ userId, onActionRequired }: PreemptiveStrikeP
             </div>
           </Card>
         </motion.div>
+        </ManagedPopup>
       ))}
 
       {/* Floating Threat Level Indicator */}

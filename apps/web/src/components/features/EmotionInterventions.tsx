@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { getEmotionBasedIntervention } from '@/lib/ai-client';
 import { useToast } from '@/hooks/useToast';
+import { ManagedPopup } from '@/components/managed-popup';
+import { PopupPriority } from '@/components/popup-manager';
 
 interface Task {
   id: string;
@@ -81,8 +83,27 @@ export function EmotionInterventions({
       setIntervention(result);
       setIsVisible(true);
       setLastCheckedTaskId(currentTask.id);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to get intervention:', error);
+      // If API key is missing, use fallback interventions
+      if (error.message?.includes('API key') || error.message?.includes('GEMINI_API_KEY')) {
+        const fallbackInterventions = [
+          {
+            type: 'break suggestion',
+            message: 'Pracujesz już dość długo. Może czas na krótką przerwę? Wstań, rozprostuj się, napij się wody.',
+            duration: '5 minut',
+            followUp: 'Pamiętaj, że przerwy zwiększają produktywność!'
+          },
+          {
+            type: 'encouraging message',
+            message: 'Świetnie Ci idzie! Każde ukończone zadanie to krok do przodu. Jesteś na dobrej drodze!',
+            duration: '0',
+            followUp: 'Kontynuuj w tym tempie!'
+          }
+        ];
+        setIntervention(fallbackInterventions[Math.floor(Math.random() * fallbackInterventions.length)]);
+        setIsVisible(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -170,12 +191,18 @@ export function EmotionInterventions({
   if (!isVisible || !intervention) return null;
 
   return (
-    <AnimatePresence>
+    <ManagedPopup
+      id={`emotion-intervention-${intervention.type.toLowerCase().replace(/\s+/g, '-')}`}
+      priority={PopupPriority.MEDIUM}
+      dismissible={true}
+      cooldown={30} // 30 minutes between emotion interventions
+      onClose={() => setIsVisible(false)}
+    >
       <motion.div
         initial={{ opacity: 0, y: -20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -20, scale: 0.95 }}
-        className="fixed top-20 right-4 z-50 max-w-sm"
+        className="max-w-sm"
       >
         <Card className="relative overflow-hidden shadow-lg">
           <div className={`absolute inset-0 bg-gradient-to-br ${getInterventionColor()}`} />
@@ -227,6 +254,6 @@ export function EmotionInterventions({
           </CardContent>
         </Card>
       </motion.div>
-    </AnimatePresence>
+    </ManagedPopup>
   );
 }

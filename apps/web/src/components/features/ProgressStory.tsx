@@ -66,13 +66,20 @@ export function ProgressStory({ tasks = [] }: ProgressStoryProps) {
       const generatedStory = await generateProgressStory(completedTasks, period);
       setStory(generatedStory);
       setIsVisible(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to generate story:', error);
-      // Fallback story
-      const totalTime = completedTasks.reduce((sum, task) => sum + task.estimatedMinutes, 0);
-      setStory(
-        `🎉 Incredible ${period === 'daily' ? 'day' : 'week'}! You conquered ${completedTasks.length} tasks and invested ${totalTime} minutes in your growth. Each completed task is a stepping stone to your ultimate goals!`
-      );
+      // Check if it's an API key error
+      if (error.message?.includes('API key') || error.message?.includes('GEMINI_API_KEY')) {
+        setStory(
+          `⚠️ Funkcja AI wymaga klucza API Gemini. Dodaj GEMINI_API_KEY do pliku .env.local\n\nW międzyczasie: ${period === 'daily' ? 'Dzisiaj' : 'W tym tygodniu'} ukończyłeś ${completedTasks.length} zadań i zainwestowałeś ${totalMinutes} minut w swój rozwój. Każde ukończone zadanie to krok do Twoich celów!`
+        );
+      } else {
+        // Fallback story
+        const totalTime = completedTasks.reduce((sum, task) => sum + task.estimatedMinutes, 0);
+        setStory(
+          `🎉 Niesamowity ${period === 'daily' ? 'dzień' : 'tydzień'}! Ukończyłeś ${completedTasks.length} zadań i zainwestowałeś ${totalTime} minut w swój rozwój. Każde ukończone zadanie to kamień milowy do Twoich celów!`
+        );
+      }
     } finally {
       setLoading(false);
     }

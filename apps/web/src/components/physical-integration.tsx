@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, Button } from '@dopaforge/ui';
 import { Smartphone, Watch, Bell, Vibrate, Volume2, Lock } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 interface PhysicalIntegrationProps {
   userId: string;
@@ -14,6 +15,7 @@ export function PhysicalIntegration({ userId, onPhysicalAction }: PhysicalIntegr
   const [phoneNumber, setPhoneNumber] = useState('');
   const [physicalReminders, setPhysicalReminders] = useState<any[]>([]);
   const [lockdownMode, setLockdownMode] = useState(false);
+  const { toast } = useToast();
 
   // SMS Bombing (w granicach rozsądku)
   const setupSMSReminders = (phone: string) => {
@@ -61,8 +63,8 @@ export function PhysicalIntegration({ userId, onPhysicalAction }: PhysicalIntegr
       }
     };
     
-    // Pokaż modal z instrukcjami
-    showLockModal(lockInstructions);
+    // Pokaż instrukcje
+    onPhysicalAction(JSON.stringify(lockInstructions));
   };
 
   // Wykorzystanie smartwatcha

@@ -83,13 +83,21 @@ export function TaskPriorityAdvisor({ tasks, onTaskSelect }: TaskPriorityAdvisor
       );
       
       setAdvice(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to get priority advice:', error);
-      toast({
-        title: 'AI Advice Failed',
-        description: 'Could not generate priority advice. Please try again.',
-        variant: 'destructive',
-      });
+      if (error.message?.includes('API key') || error.message?.includes('GEMINI_API_KEY')) {
+        toast({
+          title: '⚠️ Brak klucza API',
+          description: 'Funkcja AI wymaga klucza API Gemini. Dodaj GEMINI_API_KEY do pliku .env.local',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Błąd AI',
+          description: 'Nie udało się wygenerować porady. Spróbuj ponownie.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }

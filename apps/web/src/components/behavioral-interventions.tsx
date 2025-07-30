@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, Button } from '@dopaforge/ui';
 import { AlertTriangle, Flame, Clock, TrendingDown, Eye } from 'lucide-react';
 import { DarkPsychologyEngine, BehavioralInterrupt } from '@/lib/dark-psychology';
+import { ManagedPopup } from '@/components/managed-popup';
+import { PopupPriority } from '@/components/popup-manager';
 
 interface InterventionProps {
   userId: string;
@@ -172,13 +174,28 @@ export function BehavioralInterventions({ userId, currentTasks, lastActivity }: 
 
   if (!intervention || !isWatching) return null;
 
+  const getPriority = () => {
+    switch (intervention.severity) {
+      case 'critical': return PopupPriority.CRITICAL;
+      case 'high': return PopupPriority.HIGH;
+      case 'medium': return PopupPriority.MEDIUM;
+      default: return PopupPriority.LOW;
+    }
+  };
+
   return (
-    <AnimatePresence>
+    <ManagedPopup
+      id={`behavioral-intervention-${intervention.type}`}
+      priority={getPriority()}
+      dismissible={true}
+      cooldown={intervention.type === 'idle' ? 5 : 15} // Shorter cooldown for idle warnings
+      onClose={() => setIntervention(null)}
+    >
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="fixed top-4 right-4 z-50 max-w-md"
+        className="max-w-md"
       >
         <Card className={`p-4 shadow-lg border-2 ${
           intervention.severity === 'critical' ? 'border-red-500 animate-pulse' :
@@ -266,7 +283,7 @@ export function BehavioralInterventions({ userId, currentTasks, lastActivity }: 
           </div>
         </Card>
       </motion.div>
-    </AnimatePresence>
+    </ManagedPopup>
   );
 }
 

@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@dopaforge/ui';
 // Prevent static generation during build
 export const dynamic = 'force-dynamic';
 import { TaskCard } from '@/components/task-card';
+import { ManagedPopup } from '@/components/managed-popup';
+import { PopupPriority } from '@/components/popup-manager';
 import { CreateTaskDialog } from '@/components/create-task-dialog';
 import { StatsCard } from '@/components/stats-card';
 import { ProgressBar } from '@/components/progress-bar';
@@ -461,55 +463,132 @@ export default function DashboardPage() {
         />
       )}
 
-      <DynamicFutureSelfModal
-        open={showFutureSelf}
-        onClose={() => {
-          setShowFutureSelf(false);
-          // Zapisz że użytkownik zamknął popup dzisiaj
-          localStorage.setItem('last_visualization_dismissed', new Date().toDateString());
-        }}
-        onSubmit={handleFutureSelfSubmit}
-      />
+      {showFutureSelf && (
+        <ManagedPopup
+          id="future-self-modal"
+          priority={PopupPriority.HIGH}
+          dismissible={true}
+          cooldown={60} // 1 hour cooldown
+          showCondition={() => {
+            const todayDate = new Date().toDateString();
+            const lastVisualizationDate = localStorage.getItem('last_visualization_date');
+            const lastVisualizationDismissed = localStorage.getItem('last_visualization_dismissed');
+            return lastVisualizationDate !== todayDate && lastVisualizationDismissed !== todayDate;
+          }}
+          onClose={() => {
+            setShowFutureSelf(false);
+            localStorage.setItem('last_visualization_dismissed', new Date().toDateString());
+          }}
+        >
+          <DynamicFutureSelfModal
+            open={true}
+            onClose={() => {
+              setShowFutureSelf(false);
+              localStorage.setItem('last_visualization_dismissed', new Date().toDateString());
+            }}
+            onSubmit={handleFutureSelfSubmit}
+          />
+        </ManagedPopup>
+      )}
 
-      <DynamicWeeklyReviewModal
-        open={showWeeklyReview}
-        onClose={() => {
-          setShowWeeklyReview(false);
-          // Zapisz że użytkownik zamknął popup dzisiaj
-          localStorage.setItem('last_review_dismissed', new Date().toDateString());
-        }}
-        onSubmit={handleWeeklyReviewSubmit}
-        weekStats={{
-          tasksCompleted: completedTasks.length,
-          totalXP: totalXP,
-          streakDays: profile?.current_streak || 0,
-        }}
-      />
+      {showWeeklyReview && (
+        <ManagedPopup
+          id="weekly-review-modal"
+          priority={PopupPriority.HIGH}
+          dismissible={true}
+          cooldown={60} // 1 hour cooldown
+          showCondition={() => {
+            const todayDate = new Date().toDateString();
+            const lastReviewDate = localStorage.getItem('last_review_date');
+            const lastReviewDismissed = localStorage.getItem('last_review_dismissed');
+            return new Date().getDay() === 0 && lastReviewDate !== todayDate && lastReviewDismissed !== todayDate;
+          }}
+          onClose={() => {
+            setShowWeeklyReview(false);
+            localStorage.setItem('last_review_dismissed', new Date().toDateString());
+          }}
+        >
+          <DynamicWeeklyReviewModal
+            open={true}
+            onClose={() => {
+              setShowWeeklyReview(false);
+              localStorage.setItem('last_review_dismissed', new Date().toDateString());
+            }}
+            onSubmit={handleWeeklyReviewSubmit}
+            weekStats={{
+              tasksCompleted: completedTasks.length,
+              totalXP: totalXP,
+              streakDays: profile?.current_streak || 0,
+            }}
+          />
+        </ManagedPopup>
+      )}
 
-      <DynamicSelfCompassionModal
-        open={showSelfCompassion}
-        onClose={() => setShowSelfCompassion(false)}
-        onComplete={async () => {
-          if (user) {
-            await createSelfCompassionSession(user.id, 'Failed commitment contract', 300); // 5 minutes
-            toast({
-              title: 'Praktykowane samowspółczucie',
-              description: 'Pamiętaj, porażka jest częścią rozwoju',
-            });
-          }
-        }}
-        triggerReason="To w porządku, że nie udało Ci się osiągnąć celu. Praktykujmy życzliwość wobec siebie."
-      />
+      {showSelfCompassion && (
+        <ManagedPopup
+          id="self-compassion-modal"
+          priority={PopupPriority.MEDIUM}
+          dismissible={true}
+          persistent={false}
+        >
+          <DynamicSelfCompassionModal
+            open={true}
+            onClose={() => setShowSelfCompassion(false)}
+            onComplete={async () => {
+              if (user) {
+                await createSelfCompassionSession(user.id, 'Failed commitment contract', 300); // 5 minutes
+                toast({
+                  title: 'Praktykowane samowspółczucie',
+                  description: 'Pamiętaj, porażka jest częścią rozwoju',
+                });
+              }
+              setShowSelfCompassion(false);
+            }}
+            triggerReason="To w porządku, że nie udało Ci się osiągnąć celu. Praktykujmy życzliwość wobec siebie."
+          />
+        </ManagedPopup>
+      )}
 
-      <NotificationPermission />
-      <SatisfactionSurvey />
+      <ManagedPopup
+        id="notification-permission"
+        priority={PopupPriority.LOW}
+        dismissible={true}
+        cooldown={1440} // 24 hours
+        showCondition={() => {
+          return typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default';
+        }}
+      >
+        <NotificationPermission />
+      </ManagedPopup>
+      
+      <ManagedPopup
+        id="satisfaction-survey"
+        priority={PopupPriority.LOW}
+        dismissible={true}
+        cooldown={10080} // 7 days
+        showCondition={() => {
+          const lastSurvey = localStorage.getItem('last_satisfaction_survey');
+          if (!lastSurvey) return true;
+          const daysSince = (Date.now() - parseInt(lastSurvey)) / (1000 * 60 * 60 * 24);
+          return daysSince > 7;
+        }}
+      >
+        <SatisfactionSurvey />
+      </ManagedPopup>
       
       {/* Onboarding Flow */}
       {user && showOnboarding && (
-        <OnboardingFlow 
-          userId={user.id}
-          onComplete={handleOnboardingComplete}
-        />
+        <ManagedPopup
+          id="onboarding-flow"
+          priority={PopupPriority.CRITICAL}
+          dismissible={false}
+          persistent={true}
+        >
+          <OnboardingFlow 
+            userId={user.id}
+            onComplete={handleOnboardingComplete}
+          />
+        </ManagedPopup>
       )}
       
       {/* Advanced Anti-Procrastination Systems */}
